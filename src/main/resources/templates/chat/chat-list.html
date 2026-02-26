@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat List</title>
+    <style>
+        /* 공통 디자인 시스템 */
+        * { box-sizing:border-box; margin:0; padding:0; font-family:'Arial', sans-serif; }
+        body { background:#fafafa; display:flex; justify-content:center; align-items:center; height:100vh; }
+
+        .chat-container {
+            width:400px; height:600px;
+            border:1px solid #ccc; border-radius:10px;
+            display:flex; flex-direction:column; background:#fff; overflow:hidden;
+            box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            padding:20px 15px;
+            border-bottom:1px solid #eee;
+            font-weight:bold; font-size:20px;
+            background: #fff;
+            color: #333;
+        }
+
+        .search-container { padding: 10px 15px; background: #fff; }
+        .search-bar {
+            width: 100%; padding: 10px 15px; border-radius: 20px;
+            border: 1px solid #eee; background: #f9f9f9; outline: none; font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .search-bar:focus { border-color: #A8D0E6; background: #fff; }
+
+        .chat-list { flex:1; overflow-y:auto; background:#fff; }
+
+        .chat-item {
+            display:flex; align-items:center; padding:15px;
+            cursor:pointer; transition: background 0.2s ease;
+            border-bottom: 1px solid #f9f9f9;
+            text-decoration: none; color: inherit;
+            opacity: 0; transform: translateX(-10px);
+        }
+        .chat-item:hover { background:#f5faff; }
+
+        .profile-lg {
+            width:52px; height:52px;
+            border-radius: 50%;
+            border: 1px solid #eee;
+            margin-right:12px; overflow:hidden; flex-shrink:0;
+        }
+        .profile-lg img { width:100%; height:100%; object-fit:cover; }
+
+        .chat-info { flex:1; overflow:hidden; display: flex; flex-direction: column; }
+
+        .chat-info-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+        .user-name { font-weight:bold; font-size:15px; color:#333; }
+
+        .chat-info-bottom { display: flex; }
+        .last-msg { font-size: 13px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .last-time { font-size: 11px; color: #aaa; margin-left: 8px; flex-shrink: 0; }
+
+        .unread-dot {
+            width: 10px; height: 10px; background: #FF5252; border-radius: 50%;
+            margin-left: 15px; flex-shrink: 0;
+        }
+
+        .chat-list::-webkit-scrollbar { width: 4px; }
+        .chat-list::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">채팅</div>
+
+    <div class="search-container">
+        <input type="text" class="search-bar" placeholder="검색">
+    </div>
+
+    <div class="chat-list" id="chatList">
+        <th:block th:if="${chatRooms != null and !#lists.isEmpty(chatRooms)}">
+            <a th:each="room : ${chatRooms}"
+               href="#"
+               class="chat-item"
+               th:data-room-id="${room.roomId}"
+               th:data-room-name="${room.roomName}">
+
+                <div class="profile-lg">
+                    <img src="https://via.placeholder.com/52/A8D0E6/fff" alt="profile">
+                </div>
+
+                <div class="chat-info">
+                    <div class="chat-info-top">
+                        <span class="user-name" th:text="${room.roomName}">채팅방 이름</span>
+                        <span class="last-time">최근</span>
+                    </div>
+
+                    <div class="chat-info-bottom">
+                        <div class="last-msg">대화를 시작해보세요 💬</div>
+                    </div>
+                </div>
+
+                <div class="unread-dot" th:if="${room.messageCheck}"></div>
+            </a>
+        </th:block>
+
+        <div th:unless="${chatRooms != null and !#lists.isEmpty(chatRooms)}"
+             style="text-align:center; padding-top:100px; color:#ccc;">
+            <p style="font-size: 14px;">대화 중인 채팅방이 없습니다.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const items = document.querySelectorAll('.chat-item');
+        items.forEach((item, idx) => {
+            setTimeout(() => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+                item.style.transition = 'all 0.3s ease-out';
+            }, 50 + idx * 80);
+
+            // 클릭 시 sessionStorage에 roomId와 roomName 저장 후 이동
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const roomId = item.dataset.roomId;
+                const roomName = item.dataset.roomName;
+
+                sessionStorage.setItem('roomName', roomName);
+
+                window.location.href = `/chat/room/${roomId}`;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
