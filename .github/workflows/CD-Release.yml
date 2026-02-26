@@ -108,5 +108,9 @@ jobs:
             --name ${{ vars.INSTANCE_NAME }} \
             -p ${{ secrets.INSTANCE_PORT }}:${{ secrets.INSTANCE_PORT }} \
             -v /home/${{ secrets.SERVER_USER }}/CA/duri-server.p12:/app/duri-server.p12:ro \
+            -e KEY_STORE_PATH=${{secrets.KEYSTORE_PATH }} \
+            -e KEY_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
+            -e KEY_STORE_TYPE=${{ secrets.KEYSTORE_TYPE }} \
+            -e KEY_STORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} \
             ${{ vars.INSTANCE_NAME }}/app:${{ github.ref_name }}
           EOF
