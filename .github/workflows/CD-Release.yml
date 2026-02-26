@@ -112,6 +112,7 @@ jobs:
             -e KEY_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
             -e KEY_STORE_TYPE=${{ secrets.KEYSTORE_TYPE }} \
             -e KEY_STORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} \
+            -e SERVER_PORT=${{ secrets.INSTANCE_PORT }} \
             -e ACTIVE_PROFILE=${{ secrets.ACTIVE_PROFILE }} \
             ${{ vars.INSTANCE_NAME }}/app:${{ github.ref_name }}
           EOF
