@@ -33,6 +33,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework:spring-tx'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Broader image decode (WebP variants, progressive JPEG, etc.) — JDK ImageIO alone often returns null for phone uploads
+    implementation 'com.twelvemonkeys.imageio:imageio-core:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-webp:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.13.1'
 
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
@@ -45,6 +53,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-websocket-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

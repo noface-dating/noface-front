@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('인증 완료')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col items-center justify-center p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col items-center justify-center text-center">
+  <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+    <span class="text-3xl" aria-hidden="true">✓</span>
+  </div>
+  <p class="text-2xl font-semibold text-primary">인증 완료</p>
+  <p class="text-gray-500 text-sm mt-2">잠시 후 다음 화면으로 이동합니다</p>
+</div>
+<script>
+  window.setTimeout(function () { window.location.href = '/setup/interests'; }, 1800);
+</script>
+</body>
+</html>

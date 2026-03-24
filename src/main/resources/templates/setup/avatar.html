@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('내 아바타 만들기')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-primary inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 flex flex-col justify-center w-full">
+    <h1 class="text-2xl font-semibold text-primary">내 아바타 만들기</h1>
+    <p class="text-gray-600 mt-1 text-sm">사진을 업로드 하면 AI가 아바타를 만들어 드려요</p>
+    <p class="text-gray-500 mt-0.5 text-xs">(아바타 제작 후 사진은 자동 삭제 됩니다)</p>
+    <p th:if="${error}" class="text-red-500 text-sm mt-4" th:text="${error}"></p>
+    <form th:action="@{/setup/avatar}" method="post" enctype="multipart/form-data" id="avatarForm" class="mt-8">
+      <div class="rounded-card border-2 border-dashed border-primary/30 p-6 text-center bg-surface/50">
+        <div id="previewWrap" class="hidden flex flex-col items-center gap-3">
+          <div class="w-28 h-28 rounded-xl overflow-hidden border-2 border-primary/20 bg-white shadow-sm shrink-0">
+            <img id="facePreview" src="" alt="선택한 얼굴 사진 썸네일" class="w-full h-full object-cover"/>
+          </div>
+          <p class="text-gray-500 text-xs">선택한 사진 미리보기</p>
+        </div>
+        <p id="placeholderText" class="text-gray-500 text-sm">얼굴 사진을 업로드해 주세요</p>
+        <label class="mt-4 inline-block px-4 py-2 bg-surface text-primary text-sm font-medium rounded-button cursor-pointer">
+          사진 선택
+          <input type="file" name="face" id="faceInput" accept="image/*" class="hidden" required/>
+        </label>
+        <button type="submit" id="submitBtn" class="hidden mt-4 w-full py-3.5 bg-primary text-white rounded-button font-medium flex items-center justify-center gap-2">
+          <span id="submitSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+          <span id="submitText">아바타 만들기</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  (function () {
+    var input = document.getElementById('faceInput');
+    var preview = document.getElementById('facePreview');
+    var wrap = document.getElementById('previewWrap');
+    var ph = document.getElementById('placeholderText');
+    var btn = document.getElementById('submitBtn');
+    var form = document.getElementById('avatarForm');
+    var submitText = document.getElementById('submitText');
+    var submitSpinner = document.getElementById('submitSpinner');
+    var prevUrl = null;
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      prevUrl = URL.createObjectURL(f);
+      preview.src = prevUrl;
+      wrap.classList.remove('hidden');
+      ph.classList.add('hidden');
+      btn.classList.remove('hidden');
+    });
+    form.addEventListener('submit', function () {
+      btn.disabled = true;
+      btn.classList.add('opacity-80', 'cursor-not-allowed');
+      submitSpinner.classList.remove('hidden');
+      submitText.textContent = '아바타 생성중...';
+    });
+  })();
+</script>
+</body>
+</html>

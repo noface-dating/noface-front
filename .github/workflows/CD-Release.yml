@@ -114,5 +114,7 @@ jobs:
             -e KEY_STORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} \
             -e SERVER_PORT=${{ secrets.INSTANCE_PORT }} \
             -e ACTIVE_PROFILE=${{ secrets.ACTIVE_PROFILE }} \
+            -e OPENAI_KEY=${{ secrets.OPENAI_KEY }} \
+            -e GEMINI_KEY=${{ secrets.GEMINI_KEY }} \
             ${{ vars.INSTANCE_NAME }}/app:${{ github.ref_name }}
           EOF

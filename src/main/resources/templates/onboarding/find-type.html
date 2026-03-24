@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('이상형 찾기')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-primary inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 flex flex-col justify-center items-center text-center w-full">
+    <h1 class="text-xl font-semibold text-primary leading-snug">당신의 이상형을 찾아드립니다</h1>
+    <p class="text-sm text-gray-500 mt-2">성별을 선택해 주세요</p>
+    <div class="mt-10 w-full flex flex-col gap-3">
+      <a th:href="@{/onboarding/face-preference(gender='남성')}"
+         class="w-full py-3.5 border-2 border-primary text-primary rounded-button font-medium text-base text-center hover:bg-surface">남성</a>
+      <a th:href="@{/onboarding/face-preference(gender='여성')}"
+         class="w-full py-3.5 border-2 border-primary text-primary rounded-button font-medium text-base text-center hover:bg-surface">여성</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('취향 결과')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-primary inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 flex flex-col justify-center w-full text-center">
+    <div class="rounded-card bg-surface border-2 border-primary/10 p-6">
+      <p class="text-xl font-semibold text-primary leading-snug">
+        당신의 이상형은<br/>
+        &quot;무표정 반전 큐티상&quot;입니다
+      </p>
+      <ul class="mt-6 text-left space-y-2 text-sm text-primary">
+        <li>· 부드러운 눈매와 자연스러운 스타일을 선호하는 편이에요.</li>
+        <li>· 무표정해 보여도 웃을 때 매력이 돋보이는 타입을 좋아해요.</li>
+        <li>· 비슷한 취향을 가진 사람과 매칭될 확률이 높아요.</li>
+      </ul>
+    </div>
+    <p class="text-primary text-sm mt-6">친구의 이상형이 알고 싶다면 친구를 초대하세요</p>
+    <button type="button" id="shareBtn"
+            class="mt-2 w-full py-2.5 border-2 border-primary text-primary rounded-button font-medium text-sm">
+      공유하기
+    </button>
+    <p id="copyMsg" class="text-primary text-xs mt-1 hidden"></p>
+    <p class="text-primary font-medium text-sm mt-6">당신의 이상형이<br/>하이드를 사용하고 있습니다</p>
+    <p class="text-gray-600 text-sm mt-2">가입을 원하시면 아래 시작하기 버튼을 눌러주세요.</p>
+    <a href="/signup" class="mt-8 block w-full py-3.5 bg-primary text-white rounded-button font-medium text-center">시작하기</a>
+  </div>
+</div>
+<script th:inline="javascript">
+  (function () {
+    var origin = window.location.origin;
+    var shareUrl = origin + '/onboarding';
+    var shareText = '나의 이상형은 "무표정 반전 큐티상"이에요. 당신의 이상형도 찾아보세요!';
+    var btn = document.getElementById('shareBtn');
+    var msg = document.getElementById('copyMsg');
+    btn.addEventListener('click', function () {
+      if (navigator.share) {
+        navigator.share({
+          title: 'HIDE - 당신의 이상형을 찾아드립니다',
+          text: shareText,
+          url: shareUrl
+        }).catch(function (err) {
+          if (err && err.name !== 'AbortError') copyClip();
+        });
+      } else {
+        copyClip();
+      }
+      function copyClip() {
+        var full = shareText + '\n' + shareUrl;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(full).then(function () {
+            msg.textContent = '링크가 복사되었습니다';
+            msg.classList.remove('hidden');
+            setTimeout(function () { msg.classList.add('hidden'); }, 2000);
+          });
+        }
+      }
+    });
+  })();
+</script>
+</body>
+</html>

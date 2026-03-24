@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('손 인증')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="/setup/avatar" class="self-start p-2 -ml-2 text-gray-600 inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 flex flex-col justify-center w-full">
+    <h1 class="text-2xl font-semibold text-primary">손 인증</h1>
+    <div class="text-gray-600 mt-2 text-sm leading-relaxed">
+      <p>신뢰할 수 있는 커뮤니티를 위해 간단한 손 사진 인증을 진행합니다.</p>
+      <p>촬영한 손 사진은 프로필에 함께 표시됩니다.</p>
+      <p class="text-gray-500 mt-3 text-xs">(손·팔 외에 얼굴·몸통·다리 등 다른 신체 부위가 나오면 인증이 안 됩니다)</p>
+    </div>
+    <p th:if="${error}" class="text-red-500 text-sm mt-4" th:text="${error}"></p>
+    <form th:action="@{/setup/hand}" method="post" enctype="multipart/form-data" id="handForm" class="mt-8 space-y-6">
+      <div class="rounded-card border-2 border-dashed border-primary/30 p-6 text-center bg-surface/50">
+        <p id="handStatus" class="text-gray-500 text-sm">자신의 손 사진을 찍어주세요</p>
+        <label class="mt-4 inline-block px-6 py-3 bg-primary text-white text-sm font-medium rounded-button cursor-pointer">
+          사진 찍기
+          <input type="file" name="image" id="handImage" accept="image/*" capture="user" required class="hidden"/>
+        </label>
+      </div>
+      <button type="submit" id="handSubmit" class="w-full py-3.5 bg-primary text-white rounded-button font-medium opacity-50 pointer-events-none">인증 하기</button>
+    </form>
+  </div>
+</div>
+<script>
+  (function () {
+    var input = document.getElementById('handImage');
+    var btn = document.getElementById('handSubmit');
+    var status = document.getElementById('handStatus');
+    input.addEventListener('change', function () {
+      if (input.files && input.files[0]) {
+        status.textContent = '사진이 선택되었어요';
+        status.classList.remove('text-red-500');
+        status.classList.add('text-gray-500');
+        btn.classList.remove('opacity-50', 'pointer-events-none');
+      }
+    });
+    document.getElementById('handForm').addEventListener('submit', function () {
+      btn.disabled = true;
+      btn.textContent = '인증 중...';
+    });
+  })();
+</script>
+</body>
+</html>
