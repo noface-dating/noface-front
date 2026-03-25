@@ -26,6 +26,7 @@ repositories {
 
 ext {
     set('springCloudVersion', "2025.1.0")
+    JJWT_VERSION = "0.12.5"
 }
 
 dependencies {
@@ -33,6 +34,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT
+    implementation "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${JJWT_VERSION}"
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
