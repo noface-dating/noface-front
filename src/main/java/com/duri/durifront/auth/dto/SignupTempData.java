@@ -8,25 +8,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SignupTempData {
-    // Step01
-    private Boolean gender;
 
-    // Step02
-    private String facePreference;
-
-    // Step03
+    // Signup 입력받은 정보
     private String username;
     private String password;
     private String email;
 
-    // Step04
+    // Signup Profile 입력받은 정보
     private String nickname;
     private LocalDate birthDate;
+    private Boolean gender;
     private String region;
     private List<String> additionalInformation;
     private List<String> hobbies;
 
-    // Step05
-    private String faceFeatures;
-    private Byte absoluteScore;
 }

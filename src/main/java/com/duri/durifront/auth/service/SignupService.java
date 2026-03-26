@@ -22,7 +22,11 @@ public class SignupService {
     private final SignupTempStorageService signupTempStorageService;
 
     @Transactional
-    public void registerUserAndProfile(String tempKey) {
+    public void registerUserAndProfile(String tempKey,
+                                       String facePreference,
+                                       String faceFeatures,
+                                       Byte absoluteScore)
+    {
         SignupTempData data = signupTempStorageService.getTempData(tempKey);
 
         // 1. User 생성
@@ -50,10 +54,10 @@ public class SignupService {
                     data.getGender(),
                     data.getRegion(),
                     hobbiesJson,
-                    data.getFaceFeatures(),
-                    data.getFacePreference(),
+                    faceFeatures,
+                    facePreference,
                     additionalInformationJson,
-                    data.getAbsoluteScore()
+                    absoluteScore
             );
         } catch (Exception e) {
             throw new RuntimeException("Profile JSON 변환 중 오류 발생", e);

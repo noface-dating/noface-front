@@ -31,9 +31,11 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // URL 권한 설정
+                // TODO: 허용할 URL 추가
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/signup/**").permitAll()
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated()
                 )
 
