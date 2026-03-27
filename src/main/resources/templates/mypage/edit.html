@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>프로필 수정 - Hide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { primary: '#111111', surface: '#F5F5F0' },
+        borderRadius: { card: '1.25rem', button: '0.75rem' }
+      }}
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-white pb-10"
+      style="font-family: system-ui, sans-serif; max-width: 430px; margin: 0 auto;">
+
+  <header class="bg-white border-b border-gray-200 px-5 py-3 sticky top-0 z-10 flex items-center gap-3">
+    <a href="/mypage" class="p-2 -ml-2 text-[#111] text-xl">←</a>
+    <span class="text-base font-semibold text-[#111]">프로필 수정</span>
+  </header>
+
+  <form th:action="@{/mypage/edit}" method="post" class="p-5 space-y-5">
+    <div>
+      <label class="block text-sm font-medium text-[#111] mb-1.5">닉네임</label>
+      <input type="text" name="nickname" th:value="${nickname}"
+             class="w-full px-4 py-3 border-2 border-gray-200 rounded-[0.75rem] text-sm
+                    focus:border-[#111] focus:outline-none transition-colors"/>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-[#111] mb-1.5">지역</label>
+      <input type="text" name="region" th:value="${region}" placeholder="예: 서울, 강남구"
+             class="w-full px-4 py-3 border-2 border-gray-200 rounded-[0.75rem] text-sm
+                    focus:border-[#111] focus:outline-none transition-colors"/>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-[#111] mb-1.5">한 줄 소개</label>
+      <textarea name="intro" rows="3" th:text="${intro}"
+                class="w-full px-4 py-3 border-2 border-gray-200 rounded-[0.75rem] text-sm
+                       resize-none focus:border-[#111] focus:outline-none transition-colors"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-[#111] mb-2">관심사</label>
+      <div class="flex flex-wrap gap-2" id="tagWrap">
+        <button th:each="tag : ${allTags}" type="button"
+                th:data-tag="${tag}"
+                th:class="${#lists.contains(interests, tag)}
+                  ? 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#111] text-white'
+                  : 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#F5F5F0] text-[#111]'"
+                th:text="'#' + ${tag}"
+                onclick="toggleTag(this)">
+        </button>
+      </div>
+      <input type="hidden" name="interests" id="interestsInput"/>
+    </div>
+
+    <button type="submit"
+            class="w-full py-4 bg-[#111] text-white rounded-[0.75rem] font-medium text-base">
+      저장
+    </button>
+  </form>
+
+  <script>
+    const selected = new Set(
+      Array.from(document.querySelectorAll('.tag-btn.bg-\\[\\#111\\]'))
+           .map(b => b.dataset.tag)
+    );
+
+    function sync() {
+      document.getElementById('interestsInput').value = [...selected].join(',');
+    }
+
+    function toggleTag(btn) {
+      const tag = btn.dataset.tag;
+      if (selected.has(tag)) {
+        selected.delete(tag);
+        btn.className = 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#F5F5F0] text-[#111]';
+      } else {
+        selected.add(tag);
+        btn.className = 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#111] text-white';
+      }
+      sync();
+    }
+
+    sync();
+  </script>
+</body>
+</html>
