@@ -19,4 +19,8 @@ public class UserService {
         User user = User.createUser(username, rawPassword, email);
         return userRepository.save(user);
     }
+
+    public boolean isUsernameDuplicated(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }

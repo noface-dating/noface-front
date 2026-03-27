@@ -42,7 +42,7 @@ public class Profile {
     private LocalDate birthDate;
 
     @Column(nullable = false)
-    private Boolean gender;
+    private Boolean gender;     // 남성: true, 여성: false
 
     @Column(length = 50)
     private String region;

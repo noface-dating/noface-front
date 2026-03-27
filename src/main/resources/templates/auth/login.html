@@ -133,6 +133,7 @@
         <p class="subtitle">HIDE에 오신 것을 환영해요</p>
 
         <!-- 로그인 폼 -->
+        <!-- TODO: Auth 서버에서 지정한 운영환경 도메인 경로로 수정 필요 -->
         <form th:action="@{http://localhost:9060/auth/login}" method="post" class="form">
             <div class="form-group">
                 <label>아이디</label>

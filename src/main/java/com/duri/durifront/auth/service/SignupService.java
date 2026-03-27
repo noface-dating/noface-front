@@ -21,6 +21,10 @@ public class SignupService {
     private final ProfileService profileService;
     private final SignupTempStorageService signupTempStorageService;
 
+    public boolean isUsernameDuplicated(String username) {
+        return userService.isUsernameDuplicated(username);
+    }
+
     @Transactional
     public void registerUserAndProfile(String tempKey,
                                        String facePreference,
