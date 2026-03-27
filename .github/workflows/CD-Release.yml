@@ -113,6 +113,11 @@ jobs:
             -e KEY_STORE_TYPE=${{ secrets.KEYSTORE_TYPE }} \
             -e KEY_STORE_ALIAS=${{ secrets.KEYSTORE_ALIAS }} \
             -e SERVER_PORT=${{ secrets.INSTANCE_PORT }} \
+            -e R2_ACCESS_KEY=${{ secrets.R2_ACCESS_KEY }} \
+            -e R2_SECRET_KEY=${{ secrets.R2_SECRET_KEY }} \
+            -e R2_ENDPOINT=${{ secrets.R2_ENDPOINT }} \
+            -e R2_BUCKET=${{ secrets.R2_BUCKET }} \
             -e ACTIVE_PROFILE=${{ secrets.ACTIVE_PROFILE }} \
+            -e OPENAI_KEY=${{ secrets.OPENAI_KEY }} \
             ${{ vars.INSTANCE_NAME }}/app:${{ github.ref_name }}
           EOF
