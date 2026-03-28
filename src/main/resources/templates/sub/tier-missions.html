@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 티어 & 미션')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>티어 &amp; 미션</h1>
+  </header>
+  <div class="p-4 max-w-md mx-auto space-y-6">
+    <div class="card" style="padding:1rem">
+      <p class="text-sm text-gray-500">연결 점수</p>
+      <p id="tierScore" class="text-2xl font-semibold text-primary mt-1"></p>
+      <div class="progress-bar mt-2"><div id="tierFill" class="progress-bar-fill"></div></div>
+      <p class="text-xs text-gray-500 mt-2">티어가 높을수록 더 많은 매칭 기회가 있어요</p>
+    </div>
+    <div>
+      <h2 class="font-medium text-primary mb-3">미션</h2>
+      <ul id="missionList" class="space-y-2" style="list-style:none"></ul>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function(){
+  var u = HideMock.mockUser;
+  document.getElementById('tierScore').textContent = u.tier + '점';
+  document.getElementById('tierFill').style.width = u.tier + '%';
+  var list = document.getElementById('missionList');
+  HideMock.mockMissions.forEach(function(m){
+    var li = document.createElement('li');
+    li.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:0.75rem;border-radius:var(--radius-button);'+(m.done?'background:var(--color-surface)':'background:#fff;border:2px solid rgba(17,17,17,0.2)');
+    li.innerHTML = '<span class="'+(m.done?'text-gray-500':'text-primary')+'">'+m.title+'</span><span class="text-sm font-medium text-primary">'+m.reward+'</span>';
+    list.appendChild(li);
+  });
+})();
+</script>
+</body>
+</html>

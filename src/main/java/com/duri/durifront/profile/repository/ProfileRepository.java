@@ -1,5 +1,6 @@
 package com.duri.durifront.profile.repository;
 
+import com.duri.durifront.profile.entity.Profile;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 프로필 설정')}"></head>
+<body>
+<div class="app-root">
+  <div class="min-h-screen bg-white flex flex-col p-6" style="display:flex;flex-direction:column">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn self-start" aria-label="뒤로">←</button>
+    <div class="flex-1 max-w-sm mx-auto w-full">
+      <h1 class="text-2xl font-semibold text-primary">프로필 설정</h1>
+      <p class="text-gray-600 mt-1 text-sm">기본 정보를 입력해 주세요</p>
+      <form id="setupForm" class="mt-8 space-y-4">
+        <div><label class="form-label">닉네임</label><input type="text" placeholder="닉네임" class="form-input" required></div>
+        <div><label class="form-label">나이</label><input type="number" min="18" max="99" placeholder="나이" class="form-input" required></div>
+        <div><label class="form-label">지역</label><input type="text" placeholder="예: 서울, 강남구" class="form-input" required></div>
+        <div><label class="form-label">한 줄 소개</label><textarea placeholder="예: 카페 탐방과 영화 보는 걸 좋아해요." rows="3" class="form-input"></textarea></div>
+        <button type="submit" class="btn btn-primary">다음</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+document.getElementById('setupForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  location.href = '/setup/interests';
+});
+</script>
+</body>
+</html>

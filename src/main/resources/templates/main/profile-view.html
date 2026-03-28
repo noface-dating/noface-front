@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 프로필 상세')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>프로필 상세보기</h1>
+  </header>
+  <div class="max-w-md mx-auto" style="padding-bottom:8rem">
+    <!-- 사진 -->
+    <div class="card m-4">
+      <div id="photoArea" class="card-photo" style="cursor:pointer">
+        <span id="avatarEmoji" class="text-8xl">👤</span>
+        <span id="handEmoji" class="text-8xl" style="display:none">🖐️</span>
+        <div id="toggleHint" class="badge badge-dark" style="bottom:0.75rem;left:0.75rem">🖐️ 손사진 보기</div>
+        <div class="badge badge-glass" style="top:0.5rem;right:0.5rem">
+          <span class="text-xs font-medium text-primary" style="font-size:0.625rem">이상형 부합도</span>
+          <span id="compat" class="text-sm font-bold text-primary tabular-nums"></span>
+        </div>
+      </div>
+      <div class="p-4">
+        <h2 id="pvName" class="text-xl font-semibold text-primary"></h2>
+        <p id="pvIntro" class="text-sm text-gray-600 mt-1"></p>
+        <p id="pvRegion" class="text-sm text-gray-500 mt-1"></p>
+      </div>
+    </div>
+    <!-- 탭 -->
+    <div class="mx-4 card" style="overflow:hidden">
+      <div style="display:flex;border-bottom:1px solid rgba(17,17,17,0.1)">
+        <button type="button" class="tab-btn active" data-tab="info">기본 정보</button>
+        <button type="button" class="tab-btn" data-tab="interests">취미 · 관심사</button>
+        <button type="button" class="tab-btn" data-tab="extra">추가 정보</button>
+      </div>
+      <div class="p-4">
+        <div id="tabInfo" class="space-y-3"></div>
+        <div id="tabInterests" style="display:none"></div>
+        <div id="tabExtra" style="display:none" class="space-y-3"></div>
+      </div>
+    </div>
+  </div>
+  <!-- 하단 액션바 -->
+  <div style="position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-top:2px solid rgba(17,17,17,0.1);padding:0.75rem 1rem;z-index:20">
+    <div style="max-width:28rem;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:1rem">
+      <button type="button" id="pvPass" class="btn" style="flex:1;padding:0.625rem;border:2px solid var(--color-red-200);color:var(--color-red-500);background:none;font-size:0.875rem;font-weight:500">✕ 넘기기</button>
+      <button type="button" id="pvLike" class="btn btn-primary" style="flex:1;padding:0.625rem;width:auto">♥ 좋아요</button>
+      <button type="button" id="pvDirect" class="btn" style="flex:1;padding:0.625rem;border:2px solid var(--color-blue-200);color:var(--color-blue-500);background:none;font-size:0.875rem;font-weight:500">✉️ 다이렉트</button>
+    </div>
+  </div>
+  <!-- 매칭 모달 -->
+  <div id="matchModal" class="modal-overlay" style="display:none">
+    <div class="modal-content">
+      <div class="text-6xl mb-4">🎉</div>
+      <h2 class="text-2xl font-bold text-primary mb-2">매칭 성공!</h2>
+      <p class="text-gray-600" style="margin-bottom:0.25rem"><span id="matchName" class="font-semibold text-primary"></span>님과 매칭되었어요!</p>
+      <p class="text-sm text-gray-400 mb-6">서로 좋아요를 보냈어요. 대화를 시작해 보세요!</p>
+      <div style="display:flex;gap:0.75rem">
+        <button type="button" onclick="document.getElementById('matchModal').style.display='none';HideApp.goBack()" class="btn btn-outline" style="flex:1;padding:0.625rem">돌아가기</button>
+        <button type="button" onclick="document.getElementById('matchModal').style.display='none';location.href='/messages'" class="btn btn-primary" style="flex:1;padding:0.625rem;width:auto">대화하기 💬</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function(){
+  var userId = location.pathname.split('/').pop();
+  var M = HideMock, S = MatchingService;
+  var me = M.mockUser;
+  var showHand = false;
+  var user = null;
+  var compat = 0;
+
+  function getAge(bd){ if(!bd) return user.age||20; var t=new Date(),b=new Date(bd),a=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth(); if(m<0||(m===0&&t.getDate()<b.getDate()))a--; return a; }
+
+  async function loadProfile() {
+    try {
+      const resp = await fetch('/api/profiles/' + userId);
+      if (resp.ok) {
+        const data = await resp.json();
+        
+        let ai = {};
+        try { 
+          let parsedAi = typeof data.additionalInformation === 'string' ? JSON.parse(data.additionalInformation) : data.additionalInformation;
+          if (parsedAi && typeof parsedAi === 'object') ai = parsedAi;
+        } catch(e){}
+        let interests = [];
+        if (data.hobbies) {
+          if (Array.isArray(data.hobbies)) {
+            interests = data.hobbies;
+          } else if (typeof data.hobbies === 'string') {
+            try {
+              let parsed = JSON.parse(data.hobbies);
+              if (Array.isArray(parsed)) interests = parsed;
+              else if (typeof parsed === 'string') interests = parsed.split(',').map(x => x.trim()).filter(Boolean);
+            } catch(e) {
+              interests = data.hobbies.replace(/[\[\]"']/g, '').split(',').map(x => x.trim()).filter(Boolean);
+            }
+          }
+        }
+
+        user = {
+          id: data.userId,
+          nickname: data.nickname,
+          birthDate: data.birthDate,
+          age: data.age,
+          gender: data.gender,
+          region: data.region,
+          intro: ai.intro || '',
+          interests: interests.map(x => String(x).replace(/[\[\]"']/g, '').trim()).filter(Boolean),
+          additionalInformation: ai
+        };
+        const urlParams = new URLSearchParams(window.location.search);
+        const compatParam = urlParams.get('compat');
+        compat = compatParam ? parseInt(compatParam, 10) : (data.absoluteScore || 80);
+        render();
+      } else {
+        const text = await resp.text();
+        document.body.innerHTML = '<div style="padding:2rem"><h2>API Error: ' + resp.status + '</h2><p>' + text + '</p><button onclick="HideApp.goBack()">Back</button></div>';
+      }
+    } catch(e) {
+      console.error(e);
+      document.body.innerHTML = '<div style="padding:2rem"><h2>JS Error</h2><p>' + e.message + '</p><button onclick="HideApp.goBack()">Back</button></div>';
+    }
+  }
+
+  function render() {
+    document.getElementById('pvName').textContent = user.nickname+', '+getAge(user.birthDate);
+    document.getElementById('pvIntro').textContent = '💬 '+user.intro;
+    document.getElementById('pvRegion').textContent = '📍 '+user.region;
+    document.getElementById('compat').textContent = compat+'%';
+
+    var tabInfo = document.getElementById('tabInfo');
+    tabInfo.innerHTML = infoRow('닉네임',user.nickname)+infoRow('나이',getAge(user.birthDate)+'세')+infoRow('성별',user.gender===false?'여성':user.gender===true?'남성':'미공개')+infoRow('지역',user.region||'미공개')+infoRow('소개',user.intro||'미작성')+infoRow('이상형 부합도',compat+'%',true);
+
+    var tabInt = document.getElementById('tabInterests');
+    tabInt.innerHTML = '<p class="text-xs text-gray-400" style="margin-bottom:0.75rem">관심사 · 취미</p><div style="display:flex;flex-wrap:wrap;gap:0.5rem" id="intTags"></div>';
+    var intTags = document.getElementById('intTags');
+    var overlap = 0;
+    var safeInterests = Array.isArray(user.interests) ? user.interests : [];
+    var myInterests = (me && Array.isArray(me.interests)) ? me.interests : [];
+    safeInterests.forEach(function(t){
+      var isCommon = myInterests.indexOf(t)>=0;
+      if(isCommon) overlap++;
+      var s = document.createElement('span');
+      s.className = 'tag-lg'+(isCommon?' selected':'');
+      s.style.cursor='default';
+      s.textContent = t+(isCommon?' ✓':'');
+      intTags.appendChild(s);
+    });
+    if(overlap>0){ var p=document.createElement('p'); p.className='text-xs text-blue-500'; p.style.marginTop='0.75rem'; p.textContent='💡 겹치는 관심사가 '+overlap+'개 있어요!'; tabInt.appendChild(p); }
+
+    var tabEx = document.getElementById('tabExtra');
+    if(user.additionalInformation){
+      var ai = user.additionalInformation;
+      var html = '';
+      if(ai.mbti) html += infoRow('MBTI',ai.mbti);
+      if(ai.job) html += infoRow('직업',ai.job);
+      if(ai.selfIntro) html += infoRow('자기소개',ai.selfIntro);
+      tabEx.innerHTML = html || '<p class="text-sm text-gray-400 text-center py-6">추가 정보가 없어요.</p>';
+    } else { tabEx.innerHTML = '<p class="text-sm text-gray-400 text-center py-6">추가 정보가 없어요.</p>'; }
+  }
+
+  document.getElementById('photoArea').addEventListener('click', function(){
+    showHand=!showHand;
+    document.getElementById('avatarEmoji').style.display=showHand?'none':'';
+    document.getElementById('handEmoji').style.display=showHand?'':'none';
+    document.getElementById('toggleHint').textContent=showHand?'👤 아바타 보기':'🖐️ 손사진 보기';
+  });
+
+  function infoRow(label,val,hl){return '<div style="display:flex;align-items:start;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--color-gray-50)"><span class="text-xs text-gray-400" style="min-width:80px">'+label+'</span><span class="text-sm '+(hl?'font-bold text-blue-500':'text-primary')+'" style="text-align:right">'+val+'</span></div>';}
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      this.classList.add('active');
+      document.getElementById('tabInfo').style.display = this.dataset.tab==='info'?'':'none';
+      document.getElementById('tabInterests').style.display = this.dataset.tab==='interests'?'':'none';
+      document.getElementById('tabExtra').style.display = this.dataset.tab==='extra'?'':'none';
+    });
+  });
+
+  // 액션
+  document.getElementById('pvPass').addEventListener('click', async function(){
+    if(!user) return;
+    try {
+      const payload = { fromUserId: me.id, toUserId: user.id, type: 'DISLIKE' };
+      await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    } catch(e) {}
+    HideApp.goBack(); 
+  });
+  document.getElementById('pvLike').addEventListener('click', async function(){
+    if(!user) return;
+    try {
+      const payload = { fromUserId: me.id, toUserId: user.id, type: 'LIKE' };
+      const res = await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const r = await res.json();
+      if(r.success&&r.matched){ document.getElementById('matchName').textContent=user.nickname; document.getElementById('matchModal').style.display='flex'; }
+      else if(r.success) HideApp.goBack();
+    } catch(e) { console.error(e); }
+  });
+  document.getElementById('pvDirect').addEventListener('click', async function(){
+    if(!user) return;
+    var rem = S.getRemainingDirects(me.id);
+    if(rem<=0){alert('오늘 다이렉트 메시지를 모두 사용했어요. (3/3)');return;}
+    try {
+      const payload = { fromUserId: me.id, toUserId: user.id, type: 'DIRECT' };
+      const res = await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const r = await res.json();
+      if(r.success){if(r.matched){document.getElementById('matchName').textContent=user.nickname;document.getElementById('matchModal').style.display='flex';}else{location.href='/messages/c1';}}
+      else if(r.error) alert(r.error);
+    } catch(e) { console.error(e); }
+  });
+
+  loadProfile();
+})();
+</script>
+</body>
+</html>

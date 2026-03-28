@@ -1,50 +1,68 @@
 package com.duri.durifront.user.entity;
 
-import java.time.LocalDateTime;
+import static jakarta.persistence.EnumType.STRING;
+import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
-@Entity
-@Table(name = "users")
 @Getter
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Setter
+@Table(name = "users")
+@NoArgsConstructor(access = PROTECTED)
+@Entity
 public class User {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
-	private Long userId;
 
-	@Column(name = "username", nullable = false, length = 100, unique = true)
-	private String username;
+    @Id
+    @Column(name = "user_id", length = 36)
+    @UuidGenerator
+    private String userId;
 
-	@Column(name = "password", nullable = false, length = 100)
-	private String password;
+    @Column(name = "username", unique = true, nullable = false, length = 100)
+    private String username;
 
-	@Column(name = "email", nullable = false, length = 50)
-	private String email;
+    @Column(name = "password", nullable = false, length = 255)
+    private String password;
 
-	@Column(name = "platform_type", nullable = false, length = 20)
-	private String platformType;
+    @Column(name = "email", unique = true, nullable = false, length = 100)
+    private String email;
 
-	@Column(name = "last_login_at")
-	private LocalDateTime lastLoginAt;
+    @Column(name = "platform_type", nullable = false, length = 20)
+    @Enumerated(value = STRING)
+    private PlatformType platformType;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "role", nullable = false)
-	private RoleType role;
+    @Column(name = "role", nullable = false, length = 20)
+    @Enumerated(value = STRING)
+    private UserRole role;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    public static User createUser(String username,
+                                  String password,
+                                  String email)
+    {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setEmail(email);
+        user.setPlatformType(PlatformType.LOCAL);
+        user.setRole(UserRole.USER);
+
+        return user;
+    }
+
+    // TODO: 마지막 로그인 일시 저장 적용
+    public void updateLastLoginAt() {
+        this.lastLoginAt = LocalDateTime.now();
+    }
+
 }
-
