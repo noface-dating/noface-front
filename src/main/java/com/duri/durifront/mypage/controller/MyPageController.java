@@ -1,5 +1,6 @@
 package com.duri.durifront.mypage.controller;
 
+import com.duri.durifront.auth.annotation.UserId;
 import com.duri.durifront.entity.Profile;
 import com.duri.durifront.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class MyPageController {
     private final ProfileRepository profileRepository;
 
     @GetMapping
-    public String index(Model model) {
-        Long userId = 1L;
+    public String index(@UserId String userIdStr, Model model) {
+        Long userId = parseUserId(userIdStr);
         model.addAttribute("nickname", "게스트");
         model.addAttribute("age", 0);
         model.addAttribute("region", "");
@@ -42,8 +43,8 @@ public class MyPageController {
     }
 
     @GetMapping("/edit")
-    public String edit(Model model) {
-        Long userId = 1L;
+    public String edit(@UserId String userIdStr, Model model) {
+        Long userId = parseUserId(userIdStr);
         model.addAttribute("nickname", "");
         model.addAttribute("age", 0);
         model.addAttribute("region", "");
@@ -63,11 +64,12 @@ public class MyPageController {
 
     @PostMapping("/edit")
     public String editSubmit(
+            @UserId String userIdStr,
             @RequestParam String nickname,
             @RequestParam String region,
             @RequestParam(required = false) String intro,
             @RequestParam(required = false) String interests) {
-        Long userId = 1L;
+        Long userId = parseUserId(userIdStr);
         profileRepository.findByUserUserId(userId).ifPresent(profile -> {
             profile.setNickname(nickname);
             profile.setRegion(region);
@@ -79,6 +81,14 @@ public class MyPageController {
             profileRepository.save(profile);
         });
         return "redirect:/mypage";
+    }
+
+    private Long parseUserId(String userIdStr) {
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (Exception e) {
+            return 1L;
+        }
     }
 
     private String getAdditionalInfo(Profile profile, String key) {
