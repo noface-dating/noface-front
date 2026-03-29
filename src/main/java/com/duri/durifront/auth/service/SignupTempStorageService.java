@@ -19,7 +19,7 @@ public class SignupTempStorageService {
                                String password,
                                String email)
     {
-        SignupTempData data = signupTempDataMap.getOrDefault(tempKey, new SignupTempData());
+        SignupTempData data = signupTempDataMap.computeIfAbsent(tempKey, k -> new SignupTempData());
         data.setUsername(username);
         data.setPassword(password);
         data.setEmail(email);

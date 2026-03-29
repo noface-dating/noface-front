@@ -1,35 +1,20 @@
 package com.duri.durifront.face_preference.service;
 
-import com.duri.durifront.entity.Profile;
 import com.duri.durifront.face_preference.dto.FacePreferenceAnswerDto;
-import com.duri.durifront.repository.ProfileRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class FacePreferencePageService {
 
-    private final ProfileRepository profileRepository;
-
-    @Transactional
     public void saveResult(Long userId, List<FacePreferenceAnswerDto> answers,
                            String gender, String key, String description) {
-        Profile profile = profileRepository.findByUserUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
-        List<Integer> prefArray = buildPrefArray(answers, gender);
-        profile.setFacePreference(prefArray);
-        profileRepository.save(profile);
+        // 세션에 저장되므로 별도 DB 저장 불필요 (회원가입 완료 시 처리)
     }
 
-    @Transactional(readOnly = true)
     public SavedResultDto getSavedResult(Long userId) {
-        Profile profile = profileRepository.findByUserUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
         return SavedResultDto.builder()
                 .description("")
                 .answers(List.of())
