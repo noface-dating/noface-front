@@ -68,7 +68,7 @@
       const gender = new URLSearchParams(window.location.search).get('gender') || 'FEMALE';
       const userId = 1;
 
-      let questions = [], idx = 0, answers = [], timerId = null, answered = false;
+      let questions = [], idx = 0, answers = [], answered = false;
 
       const elProg = document.getElementById('progressText');
       const elBar  = document.getElementById('progressBar');
@@ -78,9 +78,15 @@
       const card1 = document.getElementById('card1');
       const card2 = document.getElementById('card2');
 
+      function preloadNext() {
+        if (idx + 1 < questions.length) {
+          const next = questions[idx + 1];
+          next.choices.forEach(c => { if (c.imageUrl) { new Image().src = c.imageUrl; } });
+        }
+      }
+
       function render() {
         answered = false;
-        clearInterval(timerId);
         if (!Array.isArray(questions) || questions.length === 0) {
           elLoad.style.display = 'block';
           elLoad.textContent = '질문이 비어있습니다. questions.json 또는 이미지 경로를 확인해주세요.';
@@ -111,17 +117,12 @@
         card1.onclick = () => pick(c1.choiceId, card1);
         card2.onclick = () => pick(c2.choiceId, card2);
 
-        let sec = 5;
-        timerId = setInterval(() => {
-          sec--;
-          if (sec <= 0) { clearInterval(timerId); if (!answered) skip(); }
-        }, 1000);
+        preloadNext();
       }
 
       function pick(choiceId, card) {
         if (answered) return;
         answered = true;
-        clearInterval(timerId);
         card.style.borderColor = '#111111';
         card.style.transform = 'scale(1.02)';
         const q = questions[idx];
@@ -134,7 +135,6 @@
       function skip() {
         if (answered) return;
         answered = true;
-        clearInterval(timerId);
         const q = questions[idx];
         answers.push({ questionId: q.questionId, questionText: q.questionText,
           choiceId: null, choiceLabel: null, isTimeout: true, answeredAt: new Date().toISOString() });
