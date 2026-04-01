@@ -44,50 +44,11 @@
                        resize-none focus:border-[#111] focus:outline-none transition-colors"></textarea>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-[#111] mb-2">관심사</label>
-      <div class="flex flex-wrap gap-2" id="tagWrap">
-        <button th:each="tag : ${allTags}" type="button"
-                th:data-tag="${tag}"
-                th:class="${#lists.contains(interests, tag)}
-                  ? 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#111] text-white'
-                  : 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#F5F5F0] text-[#111]'"
-                th:text="'#' + ${tag}"
-                onclick="toggleTag(this)">
-        </button>
-      </div>
-      <input type="hidden" name="interests" id="interestsInput"/>
-    </div>
-
     <button type="submit"
             class="w-full py-4 bg-[#111] text-white rounded-[0.75rem] font-medium text-base">
       저장
     </button>
   </form>
 
-  <script>
-    const selected = new Set(
-      Array.from(document.querySelectorAll('.tag-btn.bg-\\[\\#111\\]'))
-           .map(b => b.dataset.tag)
-    );
-
-    function sync() {
-      document.getElementById('interestsInput').value = [...selected].join(',');
-    }
-
-    function toggleTag(btn) {
-      const tag = btn.dataset.tag;
-      if (selected.has(tag)) {
-        selected.delete(tag);
-        btn.className = 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#F5F5F0] text-[#111]';
-      } else {
-        selected.add(tag);
-        btn.className = 'tag-btn px-4 py-2 rounded-full text-sm font-medium bg-[#111] text-white';
-      }
-      sync();
-    }
-
-    sync();
-  </script>
 </body>
 </html>

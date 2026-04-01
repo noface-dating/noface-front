@@ -1,10 +1,12 @@
 package com.duri.durifront.mypage.controller;
 
 import com.duri.durifront.auth.annotation.UserId;
+import com.duri.durifront.auth.web.cookie.CookieService;
 import com.duri.durifront.profile.entity.Profile;
 import com.duri.durifront.profile.repository.ProfileRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -22,6 +23,7 @@ public class MyPageController {
 
     private final ProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
+    private final CookieService cookieService;
 
     @GetMapping
     public String index(@UserId String userId, Model model) {
@@ -35,7 +37,6 @@ public class MyPageController {
     @GetMapping("/edit")
     public String edit(@UserId String userId, Model model) {
         setDefaults(model);
-        model.addAttribute("allTags", List.of("음악", "여행", "영화", "카페투어", "스포츠", "테니스", "맛집", "독서", "사진", "산책"));
         if (userId != null) {
             profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
         }
@@ -47,17 +48,22 @@ public class MyPageController {
             @UserId String userId,
             @RequestParam String nickname,
             @RequestParam String region,
-            @RequestParam(required = false) String intro,
-            @RequestParam(required = false) String interests) {
+            @RequestParam(required = false) String intro) {
         if (userId == null) return "redirect:/login";
         profileRepository.findByUserUserId(userId).ifPresent(profile -> {
             profile.setNickname(nickname);
             profile.setRegion(region);
-            profile.setHobbies(buildHobbiesJson(interests));
             profile.setAdditionalInformation(buildAdditionalInfoJson(intro));
             profileRepository.save(profile);
         });
         return "redirect:/mypage";
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletResponse response) {
+        cookieService.deleteAccessTokenCookie(response);
+        cookieService.deleteRefreshTokenCookie(response);
+        return "redirect:/login";
     }
 
     private void setDefaults(Model model) {
@@ -93,19 +99,6 @@ public class MyPageController {
             return objectMapper.readValue(hobbiesJson, new TypeReference<>() {});
         } catch (Exception e) {
             return List.of();
-        }
-    }
-
-    private String buildHobbiesJson(String csv) {
-        if (csv == null || csv.isBlank()) return "[]";
-        List<String> tags = Arrays.stream(csv.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
-        try {
-            return objectMapper.writeValueAsString(tags);
-        } catch (Exception e) {
-            return "[]";
         }
     }
 
