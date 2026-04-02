@@ -4,6 +4,10 @@ import com.duri.durifront.auth.dto.request.SignupUserRequestDto;
 import com.duri.durifront.auth.dto.request.SignupProfileRequestDto;
 import com.duri.durifront.auth.service.SignupService;
 import com.duri.durifront.auth.service.SignupTempStorageService;
+import com.duri.durifront.face_preference.dto.FacePreferenceSessionDto;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +28,7 @@ public class SignupController {
 
     private final SignupService signupService;
     private final SignupTempStorageService signupTempStorageService;
+    private final ObjectMapper objectMapper;
 
     // 회원가입 페이지
     @GetMapping("/signup")
@@ -94,7 +99,7 @@ public class SignupController {
             ModelAndView mv = new ModelAndView("/auth/signup");
 
             mv.addObject("tempKey", tempKey);
-            mv.addObject("signupUserRequest", request); // 기존 입력값 유지
+            mv.addObject("signupUserRequest", request);
 
             return mv;
         }
@@ -106,18 +111,18 @@ public class SignupController {
                 request.email()
         );
 
-        // TODO: 다음 페이지 경로 수정
         return new ModelAndView("redirect:/signup/profile-info?tempKey=" + tempKey);
     }
 
-    // TODO: "내 얼굴 취향 + 내 얼굴 특징 + 절대 점수" 정보 받아 사용자 & 프로필 데이터 전달 (쿼리 파라미터 활용)
-
-    // 회원가입 - 프로필 기본정보
+    // 회원가입 - 프로필 기본정보 + 최종 완료
     @PostMapping("/signup/profile-info")
     public ModelAndView signupProfile(
             @RequestParam String tempKey,
             @Valid SignupProfileRequestDto request,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            @RequestParam(required = false) String additionalInformation,
+            @RequestParam(required = false) String hobbies,
+            HttpSession session
             )
     {
         if (bindingResult.hasErrors()) {
@@ -125,6 +130,11 @@ public class SignupController {
 
             mv.addObject("tempKey", tempKey);
             mv.addObject("signupProfileRequest", request);
+
+            int currentYear = LocalDate.now().getYear();
+            mv.addObject("years", IntStream.rangeClosed(currentYear - 79, currentYear).boxed().toList());
+            mv.addObject("months", IntStream.rangeClosed(1, 12).boxed().toList());
+            mv.addObject("days", IntStream.rangeClosed(1, 31).boxed().toList());
 
             return mv;
         }
@@ -135,16 +145,27 @@ public class SignupController {
                 request.birthDate(),
                 request.gender(),
                 request.region(),
-                request.additionalInformation(),
-                request.hobbies()
+                parseJsonList(additionalInformation),
+                parseJsonList(hobbies)
         );
 
-        // TODO: 다음 페이지 경로 수정
-        return new ModelAndView("redirect:/next-step?tempKey=" + tempKey);
+        // 세션에서 취향 퀴즈 결과 가져오기 (없으면 기본값)
+        FacePreferenceSessionDto quizResult =
+                (FacePreferenceSessionDto) session.getAttribute("facePreferenceResult");
+        String facePreference = (quizResult != null) ? quizResult.getDescriptionKey() : "0000000000";
+
+        signupService.registerUserAndProfile(tempKey, facePreference, "0000000000", (byte) 50);
+        signupTempStorageService.removeTempData(tempKey);
+
+        return new ModelAndView("redirect:/login");
     }
 
-    // 최종 회원가입 완료
-    // signupService.registerUserAndProfile(tempKey, facePreference, faceFeatures, absoluteScore);
-    // signupTempStorageService.removeTempData(tempKey);
-
+    private List<String> parseJsonList(String json) {
+        if (json == null || json.isBlank()) return List.of();
+        try {
+            return objectMapper.readValue(json, new TypeReference<>() {});
+        } catch (Exception e) {
+            return json.isBlank() ? List.of() : List.of(json);
+        }
+    }
 }

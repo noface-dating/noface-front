@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // URL 권한 설정
+                // TODO: 허용할 URL 추가
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 허용
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()

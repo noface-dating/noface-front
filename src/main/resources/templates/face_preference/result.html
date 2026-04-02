@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>취향 결과 - Hide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { primary: '#111111', surface: '#F5F5F0' },
+        borderRadius: { card: '1.25rem', button: '0.75rem' }
+      }}
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-white flex flex-col pb-10"
+      style="font-family: system-ui, sans-serif; max-width: 430px; margin: 0 auto;">
+
+  <div class="px-5 pt-4 pb-2">
+    <a href="/face-preference/find-type" class="inline-block p-2 -ml-2 text-[#111] text-xl">←</a>
+  </div>
+
+  <div class="flex-1 flex flex-col justify-center px-5 gap-6">
+    <div class="bg-[#F5F5F0] rounded-[1.25rem] p-7">
+      <p class="text-base font-semibold text-[#111] text-center mb-4 leading-snug">
+        당신의 이상형은<br/>
+        <span id="resultTitle" class="font-bold"></span>입니다
+      </p>
+      <ul id="resultBullets" class="space-y-2 text-sm text-[#111]"></ul>
+    </div>
+
+    <p class="text-sm text-[#111] text-center">
+      친구의 이상형이 알고 싶다면 친구를 초대하세요
+    </p>
+
+    <button type="button" onclick="handleShare()"
+            class="w-full py-4 border-2 border-[#111] text-[#111] rounded-[0.75rem] font-medium text-base">
+      공유하기
+    </button>
+
+    <div class="text-center">
+      <p class="text-base font-semibold text-[#111] mb-1">당신의 이상형이<br/>하이드를 사용하고 있습니다</p>
+      <p class="text-sm text-gray-500 mb-5">가입을 원하시면 아래 시작하기 버튼을 눌러주세요.</p>
+      <a href="/signup"
+         class="block w-full py-4 bg-[#111] text-white rounded-[0.75rem] font-medium text-base text-center">
+        시작하기
+      </a>
+    </div>
+  </div>
+
+  <span id="descRaw" th:text="${description}" class="hidden"></span>
+
+  <script th:inline="javascript">
+    const raw = (document.getElementById('descRaw').textContent || '').trim();
+    if (!raw) document.getElementById('resultTitle').textContent = '나만의 이상형';
+
+    function extractTitle(text) {
+      if (!text) return '나만의 이상형';
+      const m = text.match(/"([^"]+)"/);
+      return m ? '"' + m[1] + '"' : '나만의 이상형';
+    }
+
+    function extractBullets(text) {
+      if (!text) return [];
+      const lines = text.split('\n').slice(1);
+      return lines.filter(l => l.trim()).map(l => {
+        if (l.startsWith('주의:')) return { text: l, warn: true };
+        return { text: '· ' + l, warn: false };
+      });
+    }
+
+    document.getElementById('resultTitle').textContent = extractTitle(raw);
+
+    const bullets = extractBullets(raw);
+    const ul = document.getElementById('resultBullets');
+    bullets.forEach(b => {
+      const li = document.createElement('li');
+      li.textContent = b.text;
+      if (b.warn) {
+        li.style.cssText = 'color:#888; font-size:0.75rem; margin-top:0.75rem;';
+      }
+      ul.appendChild(li);
+    });
+
+    function handleShare() {
+      const firstLine = raw.split('\n')[0] || '';
+      const text = '나의 이상형 취향: ' + firstLine + '\n\nHide에서 당신의 이상형도 찾아보세요!';
+      const url = window.location.origin + '/face-preference/find-type';
+      if (navigator.share) {
+        navigator.share({ title: 'Hide 이상형 분석', text, url }).catch(() => copy(text + '\n' + url));
+      } else {
+        copy(text + '\n' + url);
+      }
+    }
+
+    function copy(str) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(str).then(() => alert('링크가 복사되었습니다'));
+      } else {
+        alert('링크가 복사되었습니다');
+      }
+    }
+  </script>
+</body>
+</html>
