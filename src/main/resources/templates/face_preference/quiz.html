@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>취향 선택 - Hide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { primary: '#111111', surface: '#F5F5F0' },
+        borderRadius: { card: '1.25rem', button: '0.75rem' }
+      }}
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-white flex flex-col p-4"
+      style="font-family: system-ui, sans-serif; max-width: 430px; margin: 0 auto;">
+
+  <div class="flex items-center justify-between py-3">
+    <a href="/face-preference/find-type" class="p-2 -ml-2 text-[#111] text-xl">←</a>
+    <span id="progressText" class="text-sm font-medium text-[#111]">1 / 10</span>
+  </div>
+
+  <div class="h-1 bg-gray-200 rounded-full mb-5">
+    <div id="progressBar" class="h-full bg-[#111] rounded-full transition-all duration-300" style="width:10%"></div>
+  </div>
+
+  <h1 class="text-xl font-semibold text-[#111] text-center mb-1">당신의 선택은?</h1>
+  <p class="text-sm text-gray-400 text-center mb-6">더 마음에 드는 쪽을 선택해 주세요</p>
+
+  <div class="grid grid-cols-2 gap-4 flex-1" id="choiceGrid" style="display:none;">
+    <div id="card1"
+         class="relative rounded-[1.25rem] bg-[#F5F5F0] border-2 border-transparent
+                flex flex-col items-center justify-end overflow-hidden cursor-pointer
+                transition-all duration-200 hover:border-[#111]"
+         style="aspect-ratio: 3/4;">
+      <img id="img1" src="" alt="" class="absolute inset-0 w-full h-full"
+           style="object-fit:contain; image-rendering:-webkit-optimize-contrast; image-rendering:high-quality;"
+           onerror="this.style.display='none'; document.getElementById('ph1').style.display='flex';"/>
+      <div id="ph1" class="absolute inset-0 flex items-center justify-center" style="display:none;">
+        <span style="font-size:4rem;">👤</span>
+      </div>
+    </div>
+    <div id="card2"
+         class="relative rounded-[1.25rem] bg-[#F5F5F0] border-2 border-transparent
+                flex flex-col items-center justify-end overflow-hidden cursor-pointer
+                transition-all duration-200 hover:border-[#111]"
+         style="aspect-ratio: 3/4;">
+      <img id="img2" src="" alt="" class="absolute inset-0 w-full h-full"
+           style="object-fit:contain; image-rendering:-webkit-optimize-contrast; image-rendering:high-quality;"
+           onerror="this.style.display='none'; document.getElementById('ph2').style.display='flex';"/>
+      <div id="ph2" class="absolute inset-0 flex items-center justify-center" style="display:none;">
+        <span style="font-size:4rem;">👤</span>
+      </div>
+    </div>
+  </div>
+
+  <p id="loadingMsg" class="text-center text-gray-400 py-16 text-sm">불러오는 중...</p>
+  <button type="button" onclick="skip()"
+          id="skipBtn" style="display:none;"
+          class="mt-5 w-full text-sm text-gray-400 underline text-center py-2">
+    건너뛰기
+  </button>
+
+  <script>
+    (function () {
+      const gender = new URLSearchParams(window.location.search).get('gender') || 'FEMALE';
+
+      let questions = [], idx = 0, answers = [], answered = false;
+
+      const elProg = document.getElementById('progressText');
+      const elBar  = document.getElementById('progressBar');
+      const elGrid = document.getElementById('choiceGrid');
+      const elLoad = document.getElementById('loadingMsg');
+      const elSkip = document.getElementById('skipBtn');
+      const card1 = document.getElementById('card1');
+      const card2 = document.getElementById('card2');
+
+      function preloadNext() {
+        if (idx + 1 < questions.length) {
+          const next = questions[idx + 1];
+          next.choices.forEach(c => { if (c.imageUrl) { new Image().src = c.imageUrl; } });
+        }
+      }
+
+      function render() {
+        answered = false;
+        if (!Array.isArray(questions) || questions.length === 0) {
+          elLoad.style.display = 'block';
+          elLoad.textContent = '질문이 비어있습니다. questions.json 또는 이미지 경로를 확인해주세요.';
+          elGrid.style.display = 'none';
+          elSkip.style.display = 'none';
+          return;
+        }
+        if (idx >= questions.length) { submit(); return; }
+
+        const q = questions[idx];
+        const c1 = q.choices[0], c2 = q.choices[1];
+
+        elProg.textContent = (idx + 1) + ' / ' + questions.length;
+        elBar.style.width = ((idx + 1) / questions.length * 100) + '%';
+
+        const img1 = document.getElementById('img1');
+        const img2 = document.getElementById('img2');
+        const ph1  = document.getElementById('ph1');
+        const ph2  = document.getElementById('ph2');
+
+        img1.src = c1.imageUrl || ''; img1.style.display = c1.imageUrl ? 'block' : 'none';
+        img2.src = c2.imageUrl || ''; img2.style.display = c2.imageUrl ? 'block' : 'none';
+        ph1.style.display = c1.imageUrl ? 'none' : 'flex';
+        ph2.style.display = c2.imageUrl ? 'none' : 'flex';
+
+        card1.style.borderColor = 'transparent';
+        card2.style.borderColor = 'transparent';
+        card1.onclick = () => pick(c1.choiceId, card1);
+        card2.onclick = () => pick(c2.choiceId, card2);
+
+        preloadNext();
+      }
+
+      function pick(choiceId, card) {
+        if (answered) return;
+        answered = true;
+        card.style.borderColor = '#111111';
+        card.style.transform = 'scale(1.02)';
+        const q = questions[idx];
+        answers.push({ questionId: q.questionId, questionText: q.questionText,
+          choiceId, choiceLabel: null, isTimeout: false, answeredAt: new Date().toISOString() });
+        idx++;
+        setTimeout(render, 350);
+      }
+
+      function skip() {
+        if (answered) return;
+        answered = true;
+        const q = questions[idx];
+        answers.push({ questionId: q.questionId, questionText: q.questionText,
+          choiceId: null, choiceLabel: null, isTimeout: true, answeredAt: new Date().toISOString() });
+        idx++;
+        setTimeout(render, 150);
+      }
+
+      function submit() {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/face-preference/submit';
+
+        const fields = { gender: gender, answersJson: JSON.stringify(answers) };
+        Object.entries(fields).forEach(function(pair) {
+          const inp = document.createElement('input');
+          inp.type='hidden'; inp.name=pair[0]; inp.value=pair[1];
+          form.appendChild(inp);
+        });
+        document.body.appendChild(form);
+        form.submit();
+      }
+
+      fetch('/api/onboarding/face-preference/questions?gender=' + encodeURIComponent(gender))
+        .then(r => {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(data => {
+          questions = Array.isArray(data) ? data : [];
+          elLoad.style.display = 'none';
+          elGrid.style.display = 'grid';
+          elSkip.style.display = 'block';
+          render();
+        })
+        .catch(e => {
+          elLoad.textContent = '이미지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        });
+    })();
+  </script>
+</body>
+</html>
