@@ -66,7 +66,6 @@
   <script>
     (function () {
       const gender = new URLSearchParams(window.location.search).get('gender') || 'FEMALE';
-      const userId = 1;
 
       let questions = [], idx = 0, answers = [], answered = false;
 
@@ -147,7 +146,7 @@
         form.method = 'POST';
         form.action = '/face-preference/submit';
 
-        const fields = { userId: userId, gender: gender, answersJson: JSON.stringify(answers) };
+        const fields = { gender: gender, answersJson: JSON.stringify(answers) };
         Object.entries(fields).forEach(function(pair) {
           const inp = document.createElement('input');
           inp.type='hidden'; inp.name=pair[0]; inp.value=pair[1];
@@ -157,40 +156,20 @@
         form.submit();
       }
 
-      function buildFallbackQuestions(g) {
-        const gl = (g || 'FEMALE').toLowerCase();
-        const qs = [];
-        for (let i = 1; i <= 10; i++) {
-          qs.push({
-            questionId: 'q' + i,
-            questionText: 'q' + i,
-            choices: [
-              { choiceId: 'c' + i + '-1', imageUrl: '/images/face-preference/' + gl + '/' + gl + '_c' + i + '-1.png' },
-              { choiceId: 'c' + i + '-2', imageUrl: '/images/face-preference/' + gl + '/' + gl + '_c' + i + '-2.png' }
-            ]
-          });
-        }
-        return qs;
-      }
-
       fetch('/api/onboarding/face-preference/questions?gender=' + encodeURIComponent(gender))
         .then(r => {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         })
         .then(data => {
-          questions = Array.isArray(data) && data.length > 0 ? data : buildFallbackQuestions(gender);
+          questions = Array.isArray(data) ? data : [];
           elLoad.style.display = 'none';
           elGrid.style.display = 'grid';
           elSkip.style.display = 'block';
           render();
         })
         .catch(e => {
-          questions = buildFallbackQuestions(gender);
-          elLoad.style.display = 'none';
-          elGrid.style.display = 'grid';
-          elSkip.style.display = 'block';
-          render();
+          elLoad.textContent = '이미지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
         });
     })();
   </script>

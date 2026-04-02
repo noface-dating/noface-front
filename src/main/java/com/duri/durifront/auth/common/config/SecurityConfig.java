@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/face-preference/**").permitAll()
+                        .requestMatchers("/api/onboarding/face-preference/**").permitAll()
                         .requestMatchers("/images/**", "/css/**", "/js/**", "/favicon.ico").permitAll()
                         .anyRequest().authenticated()
                 )
