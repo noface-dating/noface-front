@@ -22,7 +22,7 @@ public class PassService {
     private final UserPassRepository userPassRepository;
     private final UserRepository userRepository;
 
-    public void sendPass(Long fromUserId, Long toUserId) {
+    public void sendPass(String fromUserId, String toUserId) {
         User fromUser = userRepository.findById(fromUserId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid fromUserId"));
         User toUser = userRepository.findById(toUserId)

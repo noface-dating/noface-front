@@ -8,9 +8,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.duri.durifront.chat.client.ChatClient;
 import com.duri.durifront.chat.dto.request.ChatRoomCreateRequestDTO;
-import com.duri.durifront.chat.dto.response.ChatRoomCreateResponseDTO;
 import com.duri.durifront.like.repository.UserLikeRepository;
 import com.duri.durifront.like.entity.UserLike;
 import com.duri.durifront.like.service.MatchNotificationService;
@@ -28,7 +26,7 @@ public class LikeService {
 
 	private final UserLikeRepository userLikeRepository;
 	private final UserRepository userRepository;
-	private final ChatClient chatClient;
+	// private final ChatClient chatClient;  // ChatClient 클래스가 아직 없으므로 주석 처리
 	private final MatchNotificationService notificationService;
 
 	/**
@@ -36,7 +34,7 @@ public class LikeService {
 	 *
 	 * @return LikeResult (성공 여부, 매칭 여부)
 	 */
-	public LikeResult sendLike(Long fromUserId, Long toUserId) {
+	public LikeResult sendLike(String fromUserId, String toUserId) {
 		// 1. 중복 체크
 		Optional<UserLike> existing = userLikeRepository
 			.findByFromUser_UserIdAndToUser_UserId(fromUserId, toUserId);
@@ -69,13 +67,13 @@ public class LikeService {
 			like.updateMatched();
 			mutualLike.updateMatched();
 
-			// 채팅방 생성 로직
-			UUID roomId = chatClient.createDMChatRoom(
-				ChatRoomCreateRequestDTO.of(fromUserId, toUserId)
-			);
+			// TODO: ChatClient가 구현되면 채팅방 생성 로직 활성화
+			// UUID roomId = chatClient.createDMChatRoom(
+			// 	ChatRoomCreateRequestDTO.of(fromUserId, toUserId)
+			// );
 
-			// 알림 전송 (채팅방 ID를 포함)
-			notificationService.sendMatchNotification(fromUserId, toUserId, roomId);
+			// 알림 전송 (채팅방 ID 없이 일단 전송)
+			notificationService.sendMatchNotification(fromUserId, toUserId, null);
 
 			return LikeResult.ofMatched();
 		}
@@ -87,7 +85,7 @@ public class LikeService {
 	 * 내가 보낸 좋아요 목록 (userId 리스트)
 	 */
 	@Transactional(readOnly = true)
-	public List<Long> getLikedUserIds(Long userId) {
+	public List<String> getLikedUserIds(String userId) {
 		return userLikeRepository
 			.findByFromUser_UserId(userId)
 			.stream()
@@ -99,7 +97,7 @@ public class LikeService {
 	 * 나를 좋아한 사용자 목록 (userId 리스트)
 	 */
 	@Transactional(readOnly = true)
-	public List<Long> getLikedByUserIds(Long userId) {
+	public List<String> getLikedByUserIds(String userId) {
 		return userLikeRepository
 			.findByToUser_UserId(userId)
 			.stream()

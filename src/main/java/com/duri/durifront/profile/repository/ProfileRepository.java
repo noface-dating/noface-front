@@ -9,12 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.duri.durifront.profile.entity.Profile;
-
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
-	Optional<Profile> findByUser_UserId(Long userId);
+	Optional<Profile> findByUser_UserId(String userId);
 
 	/**
 	 * 추천 대상 프로필 조회:
@@ -34,5 +32,5 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
 		  )
 		ORDER BY p.absoluteScore DESC
 		""")
-	List<Profile> findRecommendedProfiles(@Param("userId") Long userId, @Param("gender") Boolean gender, @Param("threeDaysAgo") java.time.LocalDateTime threeDaysAgo);
+	List<Profile> findRecommendedProfiles(@Param("userId") String userId, @Param("gender") Boolean gender, @Param("threeDaysAgo") java.time.LocalDateTime threeDaysAgo);
 }

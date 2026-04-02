@@ -1,6 +1,9 @@
 package com.duri.durifront.page.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -10,6 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
  */
 @Controller
 public class PageController {
+
+    private String getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return (auth != null && auth.getPrincipal() instanceof String)
+                ? (String) auth.getPrincipal()
+                : "";
+    }
 
     // ── 온보딩 ──
     @GetMapping("/onboarding")
@@ -25,14 +35,7 @@ public class PageController {
     public String preferenceResult() { return "onboarding/preference-result"; }
 
     // ── 인증 ──
-    @GetMapping("/login")
-    public String login() { return "auth/login"; }
-
-    @GetMapping("/signup")
-    public String signup() { return "auth/signup"; }
-
-    @GetMapping("/signup/profile-info")
-    public String signupProfileInfo() { return "auth/signup-profile-info"; }
+    // 인증 관련 라우팅은 auth 컨트롤러에서 처리
 
     // ── 셋업 ──
     @GetMapping("/setup/avatar")
@@ -52,7 +55,10 @@ public class PageController {
 
     // ── 메인 앱 ──
     @GetMapping("/")
-    public String home() { return "main/home"; }
+    public String home(Model model) {
+        model.addAttribute("userId", getCurrentUserId());
+        return "main/home";
+    }
 
     @GetMapping("/messages")
     public String messages() { return "main/messages"; }
@@ -61,23 +67,38 @@ public class PageController {
     public String messageChat(@PathVariable String chatId) { return "main/message-chat"; }
 
     @GetMapping("/profile")
-    public String profile() { return "main/profile"; }
+    public String profile(Model model) {
+        model.addAttribute("userId", getCurrentUserId());
+        return "main/profile";
+    }
 
     @GetMapping("/profile/{userId}")
-    public String profileView(@PathVariable String userId) { return "main/profile-view"; }
+    public String profileView(@PathVariable String userId, Model model) {
+        model.addAttribute("currentUserId", getCurrentUserId());
+        return "main/profile-view";
+    }
 
     @GetMapping("/community")
     public String community() { return "main/community"; }
 
     // ── 서브 페이지 ──
     @GetMapping("/likes")
-    public String likes() { return "sub/likes"; }
+    public String likes(Model model) {
+        model.addAttribute("userId", getCurrentUserId());
+        return "sub/likes";
+    }
 
     @GetMapping("/profile/edit")
-    public String editProfile() { return "sub/edit-profile"; }
+    public String editProfile(Model model) {
+        model.addAttribute("userId", getCurrentUserId());
+        return "sub/edit-profile";
+    }
 
     @GetMapping("/tier-missions")
-    public String tierMissions() { return "sub/tier-missions"; }
+    public String tierMissions(Model model) {
+        model.addAttribute("userId", getCurrentUserId());
+        return "sub/tier-missions";
+    }
 
     @GetMapping("/support")
     public String support() { return "sub/customer-support"; }

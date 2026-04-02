@@ -1,4 +1,4 @@
 package com.duri.durifront.like.dto;
 
-public record LikeRequestDto(Long fromUserId, Long toUserId, String type) {
+public record LikeRequestDto(String fromUserId, String toUserId, String type) {
 }

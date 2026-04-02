@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProfileRecommendationDto {
 	private Long profileId;
-	private Long userId;
+	private String userId;
 	private String nickname;
 	private int age;
 	private String region;

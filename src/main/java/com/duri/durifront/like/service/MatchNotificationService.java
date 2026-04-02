@@ -2,12 +2,12 @@ package com.duri.durifront.like.service;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.duri.durifront.profile.entity.Profile;
 import com.duri.durifront.profile.repository.ProfileRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,14 +25,14 @@ import lombok.extern.slf4j.Slf4j;
 public class MatchNotificationService {
 
 	/** userId → SseEmitter 매핑 */
-	private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+	private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 	private final ProfileRepository profileRepository;
 	private static final long SSE_TIMEOUT = 30 * 60 * 1000L; // 30분
 
 	/**
 	 * SSE 구독 등록
 	 */
-	public SseEmitter subscribe(Long userId) {
+	public SseEmitter subscribe(String userId) {
 		SseEmitter emitter = new SseEmitter(SSE_TIMEOUT);
 
 		emitters.put(userId, emitter);
@@ -56,17 +56,18 @@ public class MatchNotificationService {
 	/**
 	 * 매칭 성공 알림 전송 (양쪽 유저 모두에게)
 	 */
-	public void sendMatchNotification(Long user1Id, Long user2Id, java.util.UUID roomId) {
+	public void sendMatchNotification(String user1Id, String user2Id, UUID roomId) {
+		String roomIdStr = roomId != null ? roomId.toString() : "";
 		String payload = String.format(
-			"{\"roomId\": \"%s\", \"partnerId\": %d, \"message\": \"새로운 매칭이 성사되었어요! 🎉\"}", roomId, user2Id);
+			"{\"roomId\": \"%s\", \"partnerId\": \"%s\", \"message\": \"새로운 매칭이 성사되었어요! 🎉\"}", roomIdStr, user2Id);
 		sendToUser(user1Id, "match", payload);
 
 		String payload2 = String.format(
-			"{\"roomId\": \"%s\", \"partnerId\": %d, \"message\": \"새로운 매칭이 성사되었어요! 🎉\"}", roomId, user1Id);
+			"{\"roomId\": \"%s\", \"partnerId\": \"%s\", \"message\": \"새로운 매칭이 성사되었어요! 🎉\"}", roomIdStr, user1Id);
 		sendToUser(user2Id, "match", payload2);
 	}
 
-	private void sendToUser(Long userId, String eventName, String data) {
+	private void sendToUser(String userId, String eventName, String data) {
 		SseEmitter emitter = emitters.get(userId);
 		if (emitter == null) {
 			log.debug("SSE emitter not found for userId={}", userId);

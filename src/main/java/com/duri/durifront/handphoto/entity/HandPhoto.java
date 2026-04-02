@@ -30,8 +30,8 @@ public class HandPhoto {
 	@Column(name = "profile_id", nullable = false)
 	private Long profileId;
 
-	@Column(name = "user_id", nullable = false)
-	private Long userId;
+	@Column(name = "user_id", nullable = false, length = 36)
+	private String userId;
 
 	@Column(name = "hand_image", nullable = false, length = 200)
 	private String handImage;

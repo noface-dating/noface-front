@@ -13,14 +13,14 @@ import com.duri.durifront.like.entity.UserLike;
 public interface UserLikeRepository extends JpaRepository<UserLike, Long> {
 
 	/** 중복 체크 및 매칭 체크: 상대방이 나에게 좋아요를 보냈는지 */
-	Optional<UserLike> findByFromUser_UserIdAndToUser_UserId(Long fromUserId, Long toUserId);
+	Optional<UserLike> findByFromUser_UserIdAndToUser_UserId(String fromUserId, String toUserId);
 
 	/** 오늘 좋아요 전송 수 */
-	long countByFromUser_UserIdAndLikedAtAfter(Long fromUserId, LocalDateTime after);
+	long countByFromUser_UserIdAndLikedAtAfter(String fromUserId, LocalDateTime after);
 
 	/** 내가 보낸 좋아요 목록 */
-	List<UserLike> findByFromUser_UserId(Long fromUserId);
+	List<UserLike> findByFromUser_UserId(String fromUserId);
 
 	/** 나에게 온 좋아요 목록 */
-	List<UserLike> findByToUser_UserId(Long toUserId);
+	List<UserLike> findByToUser_UserId(String toUserId);
 }

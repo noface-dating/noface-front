@@ -26,14 +26,41 @@
   <div th:replace="~{fragments/layout :: bottomNav}"></div>
 </div>
 <div th:replace="~{fragments/layout :: scripts}"></div>
-<script>
+<script th:inline="javascript">
 (function(){
-  var u = HideMock.mockUser;
-  document.getElementById('userName').textContent = u.nickname+', '+u.age;
-  document.getElementById('userIntro').textContent = '💬 '+u.intro;
-  document.getElementById('userRegion').textContent = '📍 '+u.region;
-  var tags = document.getElementById('userTags');
-  u.interests.forEach(function(t){ var s=document.createElement('span'); s.className='tag'; s.style.padding='0.25rem 0.625rem'; s.textContent=t; tags.appendChild(s); });
+  var currentUserId = /*[[${userId}]]*/ '';
+
+  async function loadMyProfile() {
+    if (!currentUserId) { console.error('userId is empty'); return; }
+    try {
+      const resp = await fetch('/api/profiles/' + encodeURIComponent(currentUserId));
+      if (!resp.ok) { console.error('Failed to load profile:', resp.status); return; }
+      const data = await resp.json();
+
+      let interests = [];
+      if (data.hobbies) {
+        if (Array.isArray(data.hobbies)) {
+          interests = data.hobbies;
+        } else if (typeof data.hobbies === 'string') {
+          try { let p = JSON.parse(data.hobbies); interests = Array.isArray(p) ? p : []; } catch(e) { interests = []; }
+        }
+      }
+      interests = interests.map(function(x){ return String(x).replace(/[\[\]"']/g, '').trim(); }).filter(Boolean);
+
+      document.getElementById('userName').textContent = data.nickname + ', ' + (data.age || '');
+      let ai = {};
+      try { ai = typeof data.additionalInformation === 'string' ? JSON.parse(data.additionalInformation) : (data.additionalInformation || {}); } catch(e){}
+      document.getElementById('userIntro').textContent = '💬 ' + (ai.intro || ai.selfIntro || '');
+      document.getElementById('userRegion').textContent = '📍 ' + (data.region || '');
+      var tags = document.getElementById('userTags');
+      tags.innerHTML = '';
+      interests.forEach(function(t){ var s=document.createElement('span'); s.className='tag'; s.style.padding='0.25rem 0.625rem'; s.textContent=t; tags.appendChild(s); });
+    } catch(e) {
+      console.error('Error loading profile:', e);
+    }
+  }
+
+  loadMyProfile();
 })();
 </script>
 </body>

@@ -4,9 +4,9 @@ import java.util.List;
 
 public record ChatRoomCreateRequestDTO(
 	String roomType,
-	Long[] userIds
+	String[] userIds
 ) {
-	public static ChatRoomCreateRequestDTO of(Long user1Id, Long user2Id) {
-		return new ChatRoomCreateRequestDTO("DM", new Long[]{user1Id, user2Id});
+	public static ChatRoomCreateRequestDTO of(String user1Id, String user2Id) {
+		return new ChatRoomCreateRequestDTO("DM", new String[]{user1Id, user2Id});
 	}
 }

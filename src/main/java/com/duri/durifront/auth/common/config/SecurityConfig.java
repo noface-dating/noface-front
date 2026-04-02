@@ -31,11 +31,23 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // URL 권한 설정
-                // TODO: 허용할 URL 추가
                 .authorizeHttpRequests(auth -> auth
+                        // 정적 리소스 허용
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
+                        // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/onboarding/**").permitAll()
+                        .requestMatchers("/setup/**").permitAll()
+                        .requestMatchers("/messages/**").permitAll()
+                        .requestMatchers("/profile/**").permitAll()
+                        .requestMatchers("/community").permitAll()
+                        .requestMatchers("/likes").permitAll()
+                        .requestMatchers("/tier-missions").permitAll()
+                        .requestMatchers("/support/**").permitAll()
+                        // API 허용
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

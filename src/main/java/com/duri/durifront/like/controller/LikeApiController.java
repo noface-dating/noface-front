@@ -19,7 +19,7 @@ public class LikeApiController {
 
     private final com.duri.durifront.like.service.PassService passService;
 
-    public record LikeRequest(Long fromUserId, Long toUserId, String type) {}
+    public record LikeRequest(String fromUserId, String toUserId, String type) {}
 
     @PostMapping
     public ResponseEntity<?> sendLike(@RequestBody LikeRequest request) {

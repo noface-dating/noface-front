@@ -99,15 +99,17 @@
   <div th:replace="~{fragments/layout :: bottomNav}"></div>
 </div>
 <div th:replace="~{fragments/layout :: scripts}"></div>
-<script>
+<script th:inline="javascript">
 (function(){
   var M = HideMock, S = MatchingService;
   var cards = [], idx = 0, showHand = false, page = parseInt(sessionStorage.getItem('noface_page') || '0');
   var user = M.mockUser;
+  var currentUserId = /*[[${userId}]]*/ '';
 
   async function load() {
+    if (!currentUserId) { console.error('userId is empty. User may not be logged in.'); return; }
     try {
-      const resp = await fetch('/api/profiles/recommendations?userId=1&page=' + page);
+      const resp = await fetch('/api/profiles/recommendations?userId=' + encodeURIComponent(currentUserId) + '&page=' + page);
       if (resp.ok) {
         cards = await resp.json();
         cards.forEach(function(c) {
@@ -124,7 +126,7 @@
       cards = [];
     }
     idx = 0; showHand = false;
-    user.id = 1; // set mock user id to 1
+    user.id = currentUserId;
     updateDirectCount();
     updateNotiCount();
     renderCard();
@@ -191,7 +193,7 @@
   document.getElementById('passBtn').addEventListener('click', async function(){
     if(!cards[idx]) return;
     try {
-      const payload = { fromUserId: user.id, toUserId: cards[idx].id, type: 'DISLIKE' };
+      const payload = { fromUserId: currentUserId, toUserId: cards[idx].id, type: 'DISLIKE' };
       await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     } catch(e) {}
     animateExit('card-exit-left', goNext);
@@ -202,7 +204,7 @@
     const cardId = cards[idx].id;
     const nick = cards[idx].nickname;
     try {
-      const payload = { fromUserId: user.id, toUserId: cardId, type: 'LIKE' };
+      const payload = { fromUserId: currentUserId, toUserId: cardId, type: 'LIKE' };
       const res = await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const r = await res.json();
       if(r.success && r.matched){

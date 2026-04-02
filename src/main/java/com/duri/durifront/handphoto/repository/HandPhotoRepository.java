@@ -12,5 +12,5 @@ public interface HandPhotoRepository extends JpaRepository<HandPhoto, Long> {
 
 	Optional<HandPhoto> findByProfileIdAndStatus(Long profileId, HandPhoto.HandPhotoStatus status);
 
-	Optional<HandPhoto> findByUserId(Long userId);
+	Optional<HandPhoto> findByUserId(String userId);
 }

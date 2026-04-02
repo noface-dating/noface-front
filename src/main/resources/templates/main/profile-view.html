@@ -62,11 +62,11 @@
   </div>
 </div>
 <div th:replace="~{fragments/layout :: scripts}"></div>
-<script>
+<script th:inline="javascript">
 (function(){
   var userId = location.pathname.split('/').pop();
   var M = HideMock, S = MatchingService;
-  var me = M.mockUser;
+  var currentUserId = /*[[${currentUserId}]]*/ '';
   var showHand = false;
   var user = null;
   var compat = 0;
@@ -184,7 +184,7 @@
   document.getElementById('pvPass').addEventListener('click', async function(){
     if(!user) return;
     try {
-      const payload = { fromUserId: me.id, toUserId: user.id, type: 'DISLIKE' };
+      const payload = { fromUserId: currentUserId, toUserId: user.id, type: 'DISLIKE' };
       await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     } catch(e) {}
     HideApp.goBack(); 
@@ -192,7 +192,7 @@
   document.getElementById('pvLike').addEventListener('click', async function(){
     if(!user) return;
     try {
-      const payload = { fromUserId: me.id, toUserId: user.id, type: 'LIKE' };
+      const payload = { fromUserId: currentUserId, toUserId: user.id, type: 'LIKE' };
       const res = await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const r = await res.json();
       if(r.success&&r.matched){ document.getElementById('matchName').textContent=user.nickname; document.getElementById('matchModal').style.display='flex'; }
@@ -201,10 +201,10 @@
   });
   document.getElementById('pvDirect').addEventListener('click', async function(){
     if(!user) return;
-    var rem = S.getRemainingDirects(me.id);
+    var rem = S.getRemainingDirects(currentUserId);
     if(rem<=0){alert('오늘 다이렉트 메시지를 모두 사용했어요. (3/3)');return;}
     try {
-      const payload = { fromUserId: me.id, toUserId: user.id, type: 'DIRECT' };
+      const payload = { fromUserId: currentUserId, toUserId: user.id, type: 'DIRECT' };
       const res = await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const r = await res.json();
       if(r.success){if(r.matched){document.getElementById('matchName').textContent=user.nickname;document.getElementById('matchModal').style.display='flex';}else{location.href='/messages/c1';}}
