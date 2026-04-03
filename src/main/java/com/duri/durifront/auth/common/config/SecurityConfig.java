@@ -33,12 +33,24 @@ public class SecurityConfig {
                 // URL 권한 설정
                 // TODO: 허용할 URL 추가
                 .authorizeHttpRequests(auth -> auth
+                        // 정적 리소스 허용
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
+                        // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/login").permitAll()
-                        .requestMatchers("/face-preference/**").permitAll()
-                        .requestMatchers("/api/onboarding/face-preference/**").permitAll()
-                        .requestMatchers("/images/**", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/onboarding/**").permitAll()
+                        .requestMatchers("/setup/**").permitAll()
+                        .requestMatchers("/messages/**").permitAll()
+                        .requestMatchers("/profile/**").permitAll()
+                        .requestMatchers("/community").permitAll()
+                        .requestMatchers("/likes").permitAll()
+                        .requestMatchers("/tier-missions").permitAll()
+                        .requestMatchers("/support/**").permitAll()
+                        .requestMatchers("/mypage/**").permitAll()
+                        // TODO: /api/** 전체 허용은 보안상 위험 - 인증이 필요한 API 엔드포인트는 .authenticated()로 변경 필요
+                        // TODO: /messages/**, /profile/**, /likes, /mypage/** 등 로그인한 사용자만 접근해야 하는 경로도 .authenticated()로 변경 필요
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

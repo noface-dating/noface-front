@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 프로필 수정')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>프로필 수정</h1>
+  </header>
+  <form id="editForm" class="p-4 max-w-md mx-auto space-y-4">
+    <div><label class="form-label">닉네임</label><input type="text" id="editNick" class="form-input"></div>
+    <div><label class="form-label">나이</label><input type="number" id="editAge" min="18" max="99" class="form-input"></div>
+    <div><label class="form-label">지역</label><input type="text" id="editRegion" class="form-input"></div>
+    <div><label class="form-label">자기소개</label><textarea id="editIntro" rows="4" class="form-input"></textarea></div>
+    <div>
+      <label class="form-label">관심사</label>
+      <div id="editTags" style="display:flex;flex-wrap:wrap;gap:0.5rem"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">저장</button>
+  </form>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function(){
+  var u = HideMock.mockUser;
+  document.getElementById('editNick').value = u.nickname;
+  document.getElementById('editAge').value = u.age;
+  document.getElementById('editRegion').value = u.region;
+  document.getElementById('editIntro').value = u.intro;
+  var tags = document.getElementById('editTags');
+  u.interests.forEach(function(t){ var s=document.createElement('span'); s.className='tag'; s.textContent=t; tags.appendChild(s); });
+  document.getElementById('editForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    alert('저장되었습니다');
+    HideApp.goBack();
+  });
+})();
+</script>
+</body>
+</html>

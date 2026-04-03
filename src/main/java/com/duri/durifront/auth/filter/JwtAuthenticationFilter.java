@@ -63,7 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 3. 토큰 타입 검증 (Access Token)
             TokenType tokenType = jwtTokenProvider.getTokenType(claims);
             if (tokenType != ACCESS) {
-                throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+                filterChain.doFilter(request, response);
+                return;
             }
 
             // 4. 사용자 정보 추출
@@ -85,8 +86,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (AuthException e) {
-            // JwtExceptionFilter에서 처리하도록 전달
-            throw e;
+            // 토큰이 유효하지 않으면 인증 없이 진행
+            // permitAll 경로는 통과, authenticated 경로는 Spring Security가 차단
+            filterChain.doFilter(request, response);
+            return;
         }
 
         filterChain.doFilter(request, response);

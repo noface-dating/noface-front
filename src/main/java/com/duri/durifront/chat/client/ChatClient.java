@@ -1,11 +1,15 @@
 package com.duri.durifront.chat.client;
 
+import com.duri.durifront.chat.dto.request.ChatRoomCreateRequestDTO;
 import com.duri.durifront.chat.dto.response.ChatMessageResponseDTO;
 import com.duri.durifront.chat.dto.response.ChatMessageSliceResponseDTO;
+import com.duri.durifront.chat.dto.response.ChatRoomCreateResponseDTO;
 import com.duri.durifront.chat.dto.response.ChatRoomSummaryResponseDTO;
 import com.duri.durifront.global.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -18,6 +22,9 @@ import java.util.UUID;
         configuration = FeignConfig.class
 )
 public interface ChatClient {
+
+    @PostMapping
+    ChatRoomCreateResponseDTO createChatRoom(@RequestBody ChatRoomCreateRequestDTO request);
 
     @GetMapping
     List<ChatRoomSummaryResponseDTO> getChatRooms();
