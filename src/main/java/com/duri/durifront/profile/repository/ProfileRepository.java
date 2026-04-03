@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
-	Optional<Profile> findByUser_UserId(String userId);
+	Optional<Profile> findByUserUserId(String userId);
 
 	/**
 	 * 추천 대상 프로필 조회:

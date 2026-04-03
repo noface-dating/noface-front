@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class PageController {
 
+    // TODO: 미인증 시 빈 문자열("") 반환 - 템플릿에서 userId가 null인지 빈 문자열인지 혼용될 수 있음, null 반환으로 통일하고 @UserId 어노테이션 사용 검토 필요
     private String getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return (auth != null && auth.getPrincipal() instanceof String)
@@ -26,13 +27,13 @@ public class PageController {
     public String onboarding() { return "onboarding/onboarding"; }
 
     @GetMapping("/onboarding/find-type")
-    public String findType() { return "onboarding/find-type"; }
+    public String findType() { return "face_preference/find-type"; }
 
     @GetMapping("/onboarding/face-preference")
-    public String facePreference() { return "onboarding/face-preference"; }
+    public String facePreference() { return "face_preference/quiz"; }
 
     @GetMapping("/onboarding/preference-result")
-    public String preferenceResult() { return "onboarding/preference-result"; }
+    public String preferenceResult() { return "face_preference/result"; }
 
     // ── 인증 ──
     // 인증 관련 라우팅은 auth 컨트롤러에서 처리
@@ -67,15 +68,14 @@ public class PageController {
     public String messageChat(@PathVariable String chatId) { return "main/message-chat"; }
 
     @GetMapping("/profile")
-    public String profile(Model model) {
-        model.addAttribute("userId", getCurrentUserId());
-        return "main/profile";
+    public String profile() {
+        return "redirect:/mypage";
     }
 
     @GetMapping("/profile/{userId}")
     public String profileView(@PathVariable String userId, Model model) {
         model.addAttribute("currentUserId", getCurrentUserId());
-        return "main/profile-view";
+        return "mypage/edit";
     }
 
     @GetMapping("/community")

@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.duri.durifront.chat.client.ChatClient;
 import com.duri.durifront.chat.dto.request.ChatRoomCreateRequestDTO;
-import com.duri.durifront.like.repository.UserLikeRepository;
+import com.duri.durifront.chat.dto.response.ChatRoomCreateResponseDTO;
 import com.duri.durifront.like.entity.UserLike;
-import com.duri.durifront.like.service.MatchNotificationService;
+import com.duri.durifront.like.entity.UserMatch;
+import com.duri.durifront.like.repository.UserLikeRepository;
+import com.duri.durifront.like.repository.UserMatchRepository;
 import com.duri.durifront.user.entity.User;
 import com.duri.durifront.user.repository.UserRepository;
 
@@ -25,8 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 public class LikeService {
 
 	private final UserLikeRepository userLikeRepository;
+	private final UserMatchRepository userMatchRepository;
 	private final UserRepository userRepository;
-	// private final ChatClient chatClient;  // ChatClient 클래스가 아직 없으므로 주석 처리
+	private final ChatClient chatClient;
 	private final MatchNotificationService notificationService;
 
 	/**
@@ -67,13 +72,27 @@ public class LikeService {
 			like.updateMatched();
 			mutualLike.updateMatched();
 
-			// TODO: ChatClient가 구현되면 채팅방 생성 로직 활성화
-			// UUID roomId = chatClient.createDMChatRoom(
-			// 	ChatRoomCreateRequestDTO.of(fromUserId, toUserId)
-			// );
+			// 채팅방 생성 요청
+			UUID roomId = null;
+			ChatRoomCreateRequestDTO chatRequest = ChatRoomCreateRequestDTO.of(fromUserId, toUserId);
+			log.info("[채팅방 생성 요청] POST /api/v1/chat-room/ | body={}", chatRequest);
+			try {
+				ChatRoomCreateResponseDTO chatResponse = chatClient.createChatRoom(chatRequest);
+				roomId = chatResponse.chatRoomId();
+				log.info("[채팅방 생성 성공] roomId={}", roomId);
+			} catch (Exception e) {
+				log.warn("[채팅방 생성 실패] 채팅 서버 미응답 또는 오류 - 매칭은 정상 처리됨. error={}", e.getMessage());
+			}
 
-			// 알림 전송 (채팅방 ID 없이 일단 전송)
-			notificationService.sendMatchNotification(fromUserId, toUserId, null);
+			// 4. UserMatch 저장 - UNIQUE(user1_id, user2_id) 제약으로 동시 매칭 시 하나만 저장됨
+			// 동시 요청에서 두 트랜잭션 모두 이 지점에 도달해도, DB 유니크 제약이 중복 INSERT를 차단하여
+			// 채팅방 알림이 한 번만 전송되는 것을 보장한다.
+			try {
+				userMatchRepository.save(UserMatch.of(fromUserId, toUserId, roomId));
+				notificationService.sendMatchNotification(fromUserId, toUserId, roomId);
+			} catch (DataIntegrityViolationException e) {
+				log.warn("[중복 매칭 방지] 이미 처리된 매칭입니다. fromUser={}, toUser={}", fromUserId, toUserId);
+			}
 
 			return LikeResult.ofMatched();
 		}

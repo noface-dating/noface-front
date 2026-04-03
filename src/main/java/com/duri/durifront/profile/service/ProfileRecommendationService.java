@@ -32,7 +32,7 @@ public class ProfileRecommendationService {
 	 * 호환도 계산: face_preference 유사도 40% + absolute_score 30% + 취미 겹침 30%
 	 */
 	public List<ProfileRecommendationDto> getRecommendedProfiles(String userId, int page) {
-		Profile myProfile = profileRepository.findByUser_UserId(userId)
+		Profile myProfile = profileRepository.findByUserUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."));
 
 		List<Profile> candidates = profileRepository.findRecommendedProfiles(userId, myProfile.getGender(), java.time.LocalDateTime.now().minusDays(3));
@@ -77,7 +77,7 @@ public class ProfileRecommendationService {
 	 * 프로필 상세 보기
 	 */
 	public ProfileDetailDto getProfileDetail(String userId) {
-		Profile profile = profileRepository.findByUser_UserId(userId)
+		Profile profile = profileRepository.findByUserUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."));
 
 		String avatarUrl = avatarRepository.findByUserId(userId)

@@ -27,19 +27,17 @@ public class MyPageController {
 
     @GetMapping
     public String index(@UserId String userId, Model model) {
+        if (userId == null) return "redirect:/login";
         setDefaults(model);
-        if (userId != null) {
-            profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
-        }
+        profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
         return "mypage/index";
     }
 
     @GetMapping("/edit")
     public String edit(@UserId String userId, Model model) {
+        if (userId == null) return "redirect:/login";
         setDefaults(model);
-        if (userId != null) {
-            profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
-        }
+        profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
         return "mypage/edit";
     }
 
