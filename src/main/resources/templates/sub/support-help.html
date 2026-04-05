@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 자주 묻는 질문')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>자주 묻는 질문</h1>
+  </header>
+  <div class="py-6 p-4 space-y-4 text-primary">
+    <p class="text-gray-600">자주 묻는 질문과 이용 안내를 확인해 보세요.</p>
+    <ul style="list-style:none" class="space-y-2">
+      <li style="padding:0.75rem;background:var(--color-surface);border-radius:var(--radius-button)">계정 문의</li>
+      <li style="padding:0.75rem;background:var(--color-surface);border-radius:var(--radius-button)">매칭 이용 방법</li>
+      <li style="padding:0.75rem;background:var(--color-surface);border-radius:var(--radius-button)">결제/환불</li>
+    </ul>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

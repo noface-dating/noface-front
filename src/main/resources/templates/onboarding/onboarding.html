@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 시작하기')}"></head>
+<body>
+<div class="app-root">
+  <div class="min-h-screen bg-surface flex items-center justify-center p-4" style="background:var(--color-surface)">
+    <div class="w-full max-w-md" style="background:#fff;border-radius:var(--radius-card);box-shadow:var(--shadow-card);border:2px solid var(--color-primary);padding:1.5rem">
+      <h1 class="text-center text-lg font-medium text-primary" style="padding-top:0.5rem">HIDE</h1>
+      <div class="mt-6 text-center">
+        <p class="text-xl font-semibold text-primary leading-tight">얼굴은 숨기고</p>
+        <p class="text-xl font-semibold text-primary leading-tight mt-1">이상형은 찾는다</p>
+      </div>
+      <button type="button" onclick="location.href='/onboarding/find-type'" class="btn btn-primary mt-8">시작하기</button>
+      <p class="text-center text-sm text-gray-500 mt-4">
+        이미 계정이 있으신가요?
+        <a href="/login" class="text-primary font-semibold underline underline-offset-2" style="background:none;border:none;cursor:pointer">로그인</a>
+      </p>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

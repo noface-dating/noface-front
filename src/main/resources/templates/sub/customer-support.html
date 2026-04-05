@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 고객지원')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>고객지원</h1>
+  </header>
+  <nav class="p-4 max-w-md mx-auto">
+    <ul class="card" style="overflow:hidden;list-style:none">
+      <li style="border-bottom:1px solid rgba(17,17,17,0.1)"><a href="/support/help" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;text-decoration:none;color:var(--color-primary)"><span>자주 묻는 질문</span><span class="text-gray-400">›</span></a></li>
+      <li><a href="/support/inquiry" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;text-decoration:none;color:var(--color-primary)"><span>문의하기</span><span class="text-gray-400">›</span></a></li>
+    </ul>
+  </nav>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

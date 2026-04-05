@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필 정보</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #FFFFFF;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .back-btn {
+            align-self: flex-start;
+            padding: 0.5rem;
+            margin-left: -0.5rem;
+            margin-bottom: 2rem;
+            background: none;
+            border: none;
+            color: #111111;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .content {
+            flex: none;
+            display: flex;
+            flex-direction: column;
+            max-width: 24rem;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 0.1rem;
+            color: #111111;
+        }
+
+        .subtitle {
+            color: #6B7280;
+            font-size: 14px;
+            margin-top: 0.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #111111;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid rgba(17,17,17,0.3);
+            border-radius: 0.75rem;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #111111;
+        }
+
+        .row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 2px solid rgba(17,17,17,0.3);
+            background: white;
+            color: #111111;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .gender-btn.active {
+            background-color: #111111;
+            color: white;
+            border-color: #111111;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        .message {
+            font-size: 12px;
+            margin-top: 0.25rem;
+        }
+
+        .error {
+            color: #EF4444;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 0.875rem;
+            margin-top: 1.5rem;
+            background-color: #111111;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="content">
+
+        <button class="back-btn" onclick="history.back()">←</button>
+
+        <h1>프로필 정보</h1>
+        <p class="subtitle">닉네임과 기본 정보를 입력해 주세요</p>
+
+        <form id="profileForm" th:action="@{/signup/profile-info}" method="post">
+
+            <!-- tempKey 유지 -->
+            <input type="hidden" name="tempKey" th:value="${tempKey}"/>
+
+            <!-- 닉네임 -->
+            <div class="form-group">
+                <label>닉네임</label>
+                <input type="text" name="nickname" placeholder="닉네임"/>
+                <p id="nicknameError" class="message error"></p>
+            </div>
+
+            <!-- 생년월일 -->
+            <div class="form-group">
+                <label>생년월일</label>
+                <div class="row">
+                    <select id="birthYear">
+                        <option value="">년</option>
+                        <th:block th:each="y : ${years}">
+                            <option th:value="${y}" th:text="${y + '년'}"></option>
+                        </th:block>
+                    </select>
+
+                    <select id="birthMonth">
+                        <option value="">월</option>
+                        <th:block th:each="m : ${months}">
+                            <option th:value="${m}" th:text="${m + '월'}"></option>
+                        </th:block>
+                    </select>
+
+                    <select id="birthDay">
+                        <option value="">일</option>
+                        <th:block th:each="d : ${days}">
+                            <option th:value="${d}" th:text="${d + '일'}"></option>
+                        </th:block>
+                    </select>
+                </div>
+                <input type="hidden" name="birthDate" id="birthDateInput"/>
+                <p id="birthError" class="message error"></p>
+            </div>
+
+            <!-- 성별 -->
+            <div class="form-group">
+                <label>성별</label>
+                <div class="row">
+                    <button type="button" class="gender-btn" onclick="selectGender(this, true)">남성</button>
+                    <button type="button" class="gender-btn" onclick="selectGender(this, false)">여성</button>
+                </div>
+                <input type="hidden" name="gender" id="genderInput"/>
+                <p id="genderError" class="message error"></p>
+            </div>
+
+            <!-- 지역 -->
+            <div class="form-group">
+                <label>사는 지역 (선택)</label>
+                <input type="text" name="region" placeholder="예: 서울 강남구"/>
+            </div>
+
+            <!-- 자기소개 -->
+            <div class="form-group">
+                <label>간단한 자기소개 (선택)</label>
+                <div class="row">
+                    <textarea id="additionalInformationTextarea" rows="4" placeholder="자기소개를 입력해 주세요"></textarea>
+                    <input type="hidden" name="additionalInformation" id="additionalInformationInput"/>
+                </div>
+            </div>
+
+            <!-- 취미 -->
+            <div class="form-group">
+                <label>취미(선택)</label>
+                <div class="row">
+                    <textarea id="hobbiesTextarea" rows="4" placeholder="취미를 입력해 주세요"></textarea>
+                </div>
+                <input type="hidden" name="hobbies" id="hobbiesInput"/>
+            </div>
+
+            <button type="submit" class="submit-btn">다음</button>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    // 성별 선택
+    function selectGender(el, value) {
+        document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'))
+        el.classList.add('active')
+        document.getElementById('genderInput').value = value
+    }
+
+    const profileForm = document.getElementById('profileForm')
+
+    const nicknameInput = document.querySelector('input[name="nickname"]')
+    const nicknameError = document.getElementById('nicknameError')
+
+    const birthYear = document.getElementById('birthYear')
+    const birthMonth = document.getElementById('birthMonth')
+    const birthDay = document.getElementById('birthDay')
+    const birthError = document.getElementById('birthError')
+
+    const genderInput = document.getElementById('genderInput')
+    const genderError = document.getElementById('genderError')
+
+    profileForm.addEventListener('submit', function(e) {
+        let hasError = false
+
+        // 닉네임 체크
+        if (!nicknameInput.value.trim()) {
+            nicknameError.innerText = '닉네임을 입력해 주세요'
+            hasError = true
+        } else {
+            nicknameError.innerText = ''
+        }
+
+        // 생년월일 체크
+        if (!birthYear.value || !birthMonth.value || !birthDay.value) {
+            birthError.innerText = '생년월일을 선택해 주세요'
+            hasError = true
+        } else {
+            birthError.innerText = ''
+        }
+
+        // 성별 체크
+        if (!genderInput.value) {
+            genderError.innerText = '성별을 선택해 주세요'
+            hasError = true
+        } else {
+            genderError.innerText = ''
+        }
+
+        if (hasError) {
+            e.preventDefault()
+            return
+        }
+
+        // birthDate 생성
+        const monthStr = birthMonth.value.padStart(2,'0')
+        const dayStr = birthDay.value.padStart(2,'0')
+        document.getElementById('birthDateInput').value = `${birthYear.value}-${monthStr}-${dayStr}`
+
+        // additionalInformation JSON
+        const additional = document.getElementById('additionalInformationTextarea').value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line !== '')
+        document.getElementById('additionalInformationInput').value = JSON.stringify(additional)
+
+        // hobbies JSON
+        const hobbies = document.getElementById('hobbiesTextarea').value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line !== '')
+        document.getElementById('hobbiesInput').value = JSON.stringify(hobbies)
+    })
+</script>
+
+</body>
+</html>

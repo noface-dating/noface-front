@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 탐색 설정')}"></head>
+<body>
+<div class="app-root">
+  <div class="min-h-screen bg-white flex flex-col p-6" style="display:flex;flex-direction:column">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn self-start" aria-label="뒤로">←</button>
+    <div class="flex-1 max-w-sm mx-auto w-full">
+      <h1 class="text-2xl font-semibold text-primary">탐색 설정</h1>
+      <p class="text-gray-600 mt-1 text-sm">매칭 우선순위: 비슷한 관심사를 가진 사람이 먼저 노출돼요</p>
+      <form id="discoveryForm" class="mt-8 space-y-6">
+        <div>
+          <label class="form-label">거리 (km)</label>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <input type="number" min="0" value="0" class="form-input">
+            <span class="text-gray-500">~</span>
+            <input type="number" min="0" value="50" class="form-input">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">선호 나이</label>
+          <div style="display:flex;align-items:center;gap:0.5rem">
+            <input type="number" min="18" max="99" value="20" class="form-input">
+            <span class="text-gray-500">~</span>
+            <input type="number" min="18" max="99" value="35" class="form-input">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">시작하기</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+document.getElementById('discoveryForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  HideApp.completeSetup();
+  location.href = '/';
+});
+</script>
+</body>
+</html>
