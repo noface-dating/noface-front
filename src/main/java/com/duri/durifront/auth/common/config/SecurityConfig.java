@@ -38,7 +38,7 @@ public class SecurityConfig {
                         // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup/**").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/onboarding/**").permitAll()
                         .requestMatchers("/setup/**").permitAll()
                         .requestMatchers("/messages/**").permitAll()
