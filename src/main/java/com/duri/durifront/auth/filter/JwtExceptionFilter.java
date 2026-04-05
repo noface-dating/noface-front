@@ -27,6 +27,13 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException
     {
+        String accept = request.getHeader("Accept");
+
+        if (accept != null && accept.contains("text/html")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
             filterChain.doFilter(request, response);
         } catch (AuthException e) {
