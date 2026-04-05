@@ -48,8 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/tier-missions").permitAll()
                         .requestMatchers("/support/**").permitAll()
                         .requestMatchers("/mypage/**").permitAll()
-                        // TODO: /api/** 전체 허용은 보안상 위험 - 인증이 필요한 API 엔드포인트는 .authenticated()로 변경 필요
-                        // TODO: /messages/**, /profile/**, /likes, /mypage/** 등 로그인한 사용자만 접근해야 하는 경로도 .authenticated()로 변경 필요
+						.requestMatchers("/face-preference/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
