@@ -60,7 +60,6 @@ dependencies {
 
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
-    runtimeOnly 'com.h2database:h2'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
