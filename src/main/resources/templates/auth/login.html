@@ -160,7 +160,7 @@
 
                 try {
                     // TODO: 인증 서버 URL 하드코딩 제거 - Thymeleaf 서버사이드 변수 또는 meta 태그로 주입하여 운영 환경에서도 동작하도록 변경 필요
-                    const response = await fetch('http://localhost:9060/auth/login', {
+                    const response = await fetch('http://localhost:8060/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
