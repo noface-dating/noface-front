@@ -35,7 +35,7 @@ public class SignupController {
     public ModelAndView getSignupUser() {
         String tempKey = UUID.randomUUID().toString();
 
-        ModelAndView mv = new ModelAndView("/auth/signup");
+        ModelAndView mv = new ModelAndView("auth/signup");
         mv.addObject("tempKey", tempKey);
         mv.addObject("signupUserRequest",
                 new SignupUserRequestDto(null, null, null));
@@ -46,7 +46,7 @@ public class SignupController {
     // 회원가입 - 프로필 정보 페이지
     @GetMapping("/signup/profile-info")
     public ModelAndView getSignupProfileInfo(@RequestParam String tempKey) {
-        ModelAndView mv = new ModelAndView("/auth/signup-profile-info");
+        ModelAndView mv = new ModelAndView("auth/signup-profile-info");
 
         mv.addObject("tempKey", tempKey);
         mv.addObject("signupProfileRequest",
@@ -96,7 +96,7 @@ public class SignupController {
         }
 
         if (bindingResult.hasErrors()) {
-            ModelAndView mv = new ModelAndView("/auth/signup");
+            ModelAndView mv = new ModelAndView("auth/signup");
 
             mv.addObject("tempKey", tempKey);
             mv.addObject("signupUserRequest", request);
@@ -126,7 +126,7 @@ public class SignupController {
             )
     {
         if (bindingResult.hasErrors()) {
-            ModelAndView mv = new ModelAndView("/auth/signup-profile-info");
+            ModelAndView mv = new ModelAndView("auth/signup-profile-info");
 
             mv.addObject("tempKey", tempKey);
             mv.addObject("signupProfileRequest", request);

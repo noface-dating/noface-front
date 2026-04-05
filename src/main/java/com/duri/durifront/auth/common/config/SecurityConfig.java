@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 허용
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
+                        // 에러 페이지 허용 (템플릿 에러 발생 시 /error로 포워딩되어 403 방지)
+                        .requestMatchers("/error").permitAll()
                         // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/signup/**").permitAll()
