@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 좋아요')}"></head>
+<body>
+<div class="app-root">
+  <header class="page-header">
+    <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+    <h1>좋아요</h1>
+  </header>
+  <div style="display:flex;border-bottom:1px solid rgba(17,17,17,0.1)">
+    <button type="button" class="tab-btn active" data-tab="sent">내가 좋아요 한</button>
+    <button type="button" class="tab-btn" data-tab="received">나를 좋아요 한</button>
+  </div>
+  <div id="sentTab" class="p-4" style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem"></div>
+  <div id="receivedTab" class="p-4" style="display:none;grid-template-columns:repeat(2,1fr);gap:0.75rem"></div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function(){
+  function renderGrid(container, users){
+    container.innerHTML='';
+    if(!users.length){container.style.display='block';container.innerHTML='<p class="text-center text-gray-400" style="padding:3rem 0;font-size:0.875rem">아직 없어요.</p>';return;}
+    container.style.display='grid';
+    users.forEach(function(u){
+      var div=document.createElement('div');
+      div.className='card'; div.style.cursor='pointer';
+      div.innerHTML='<div class="card-photo" style="aspect-ratio:1"><span class="text-5xl">👤</span></div><div class="p-3"><p class="font-medium text-primary text-sm">'+u.nickname+'</p><p class="text-xs text-gray-500">'+u.age+'세 · '+u.region+'</p></div>';
+      div.addEventListener('click',function(){location.href='/profile/'+u.id;});
+      container.appendChild(div);
+    });
+  }
+  renderGrid(document.getElementById('sentTab'), HideMock.mockCards.slice(0,3));
+  renderGrid(document.getElementById('receivedTab'), HideMock.mockLikedMe);
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      this.classList.add('active');
+      document.getElementById('sentTab').style.display=this.dataset.tab==='sent'?'grid':'none';
+      document.getElementById('receivedTab').style.display=this.dataset.tab==='received'?'grid':'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>

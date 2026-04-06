@@ -1,29 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head th:replace="~{fragments/head :: head('취향 테스트')}"></head>
-<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-4">
-<div class="app-shell w-full mx-auto flex flex-col flex-1 max-w-md">
-  <div class="flex items-center justify-between py-4">
-    <a href="javascript:history.back()" class="p-2 text-primary inline-tap" aria-label="뒤로">←</a>
-    <span class="text-sm font-medium text-primary" th:text="${roundDisplay} + ' / ' + ${totalRounds}">1 / 10</span>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 이상형 월드컵')}"></head>
+<body>
+<div class="app-root">
+  <div class="min-h-screen bg-white flex flex-col p-4" style="display:flex;flex-direction:column">
+    <div class="flex items-center justify-between" style="padding:1rem 0">
+      <button type="button" onclick="HideApp.goBack()" class="back-btn" aria-label="뒤로">←</button>
+      <span id="roundLabel" class="text-sm font-medium text-primary">1 / 10</span>
+    </div>
+    <div class="progress-bar" style="margin-bottom:1.5rem">
+      <div id="progressFill" class="progress-bar-fill" style="width:10%"></div>
+    </div>
+    <h1 class="text-xl font-semibold text-primary text-center" style="margin-bottom:0.25rem">당신의 선택은?</h1>
+    <p class="text-gray-500 text-sm text-center" style="margin-bottom:1.5rem">더 마음에 드는 쪽을 선택해 주세요</p>
+    <div class="flex-1" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <button type="button" id="choiceA" class="card-photo" style="border-radius:var(--radius-card);border:2px solid rgba(17,17,17,0.2);cursor:pointer;flex-direction:column;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='rgba(17,17,17,0.2)'">
+        <span class="text-6xl" style="margin-bottom:0.5rem">👤</span>
+        <span class="text-sm text-primary font-medium">A</span>
+      </button>
+      <button type="button" id="choiceB" class="card-photo" style="border-radius:var(--radius-card);border:2px solid rgba(17,17,17,0.2);cursor:pointer;flex-direction:column;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='rgba(17,17,17,0.2)'">
+        <span class="text-6xl" style="margin-bottom:0.5rem">👤</span>
+        <span class="text-sm text-primary font-medium">B</span>
+      </button>
+    </div>
   </div>
-  <div class="h-1.5 bg-surface rounded-full overflow-hidden mb-6">
-    <div class="h-full bg-primary rounded-full transition-all" th:style="|width: ${progressPct}%|"></div>
-  </div>
-  <h1 class="text-xl font-semibold text-primary text-center mb-1">당신의 선택은?</h1>
-  <p class="text-gray-500 text-sm text-center mb-6">더 마음에 드는 쪽을 선택해 주세요</p>
-  <form th:action="@{/onboarding/face-preference}" method="post" class="flex-1 grid grid-cols-2 gap-4">
-    <button type="submit" name="choice" value="A"
-            class="aspect-[3/4] rounded-card bg-surface border-2 border-primary/20 hover:border-primary flex flex-col items-center justify-center transition-colors">
-      <span class="text-6xl mb-2">👤</span>
-      <span class="text-sm text-primary font-medium">A</span>
-    </button>
-    <button type="submit" name="choice" value="B"
-            class="aspect-[3/4] rounded-card bg-surface border-2 border-primary/20 hover:border-primary flex flex-col items-center justify-center transition-colors">
-      <span class="text-6xl mb-2">👤</span>
-      <span class="text-sm text-primary font-medium">B</span>
-    </button>
-  </form>
 </div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function() {
+  var TOTAL = 10, round = 0, choices = [];
+  var label = document.getElementById('roundLabel');
+  var fill = document.getElementById('progressFill');
+
+  function update() {
+    label.textContent = (round + 1) + ' / ' + TOTAL;
+    fill.style.width = ((round + 1) / TOTAL * 100) + '%';
+  }
+
+  function choose(c) {
+    choices.push(c);
+    if (round + 1 >= TOTAL) {
+      sessionStorage.setItem('hide_pref_choices', JSON.stringify(choices));
+      location.href = '/onboarding/preference-result';
+      return;
+    }
+    round++;
+    update();
+  }
+
+  document.getElementById('choiceA').addEventListener('click', function() { choose('A'); });
+  document.getElementById('choiceB').addEventListener('click', function() { choose('B'); });
+  update();
+})();
+</script>
 </body>
 </html>

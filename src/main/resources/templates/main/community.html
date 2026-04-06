@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('HIDE - 커뮤니티')}"></head>
+<body>
+<div class="app-root with-bottom-nav">
+  <header class="page-header" style="display:block">
+    <h1 class="text-lg font-semibold text-primary">커뮤니티</h1>
+    <p class="text-sm text-gray-500" style="margin-top:0.125rem">자유롭게 이야기해 보세요</p>
+    <button type="button" id="filterToggle" class="btn btn-outline btn-sm mt-3" style="display:flex;align-items:center;gap:0.5rem">필터 <span id="filterArrow">▼</span></button>
+    <div id="filterPanel" style="display:none;margin-top:0.75rem;padding:0.75rem;border-radius:var(--radius-card);background:var(--color-surface);border:1px solid rgba(17,17,17,0.1)" class="space-y-3"></div>
+  </header>
+  <div id="posts" class="p-4 space-y-4"></div>
+  <div th:replace="~{fragments/layout :: bottomNav}"></div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+(function(){
+  var posts = HideMock.mockCommunityPosts.map(function(p){return Object.assign({},p);});
+  var filters = {region:'전체',age:'전체',gender:'전체',school:'전체'};
+  var REGIONS=['전체','서울 강남','서울 마포','경기 분당'];
+  var AGES=['전체','20대 초반','20대 후반','30대'];
+  var GENDERS=['전체','남','여'];
+  var SCHOOLS=['전체','서울대','연세대','고려대','성균관대'];
+
+  var panel = document.getElementById('filterPanel');
+  function buildFilters(){
+    panel.innerHTML='';
+    [['지역',REGIONS,'region'],['나이',AGES,'age'],['성별',GENDERS,'gender'],['학교',SCHOOLS,'school']].forEach(function(g){
+      var div=document.createElement('div');
+      div.innerHTML='<p class="text-xs font-medium text-primary" style="margin-bottom:0.25rem">'+g[0]+'</p>';
+      var wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-wrap:wrap;gap:0.375rem';
+      g[1].forEach(function(v){
+        var btn=document.createElement('button'); btn.type='button'; btn.textContent=v;
+        btn.className='filter-tag'+(filters[g[2]]===v?' active':'');
+        btn.addEventListener('click',function(){ filters[g[2]]=v; buildFilters(); renderPosts(); });
+        wrap.appendChild(btn);
+      });
+      div.appendChild(wrap); panel.appendChild(div);
+    });
+  }
+  buildFilters();
+
+  document.getElementById('filterToggle').addEventListener('click',function(){
+    var p=document.getElementById('filterPanel');
+    var shown=p.style.display!=='none';
+    p.style.display=shown?'none':'block';
+    document.getElementById('filterArrow').textContent=shown?'▼':'▲';
+  });
+
+  function renderPosts(){
+    var container=document.getElementById('posts');
+    container.innerHTML='';
+    var filtered=posts.filter(function(p){
+      var r=filters.region==='전체'||p.author.region===filters.region;
+      var a=filters.age==='전체'||(filters.age==='20대 초반'&&p.author.age>=20&&p.author.age<24)||(filters.age==='20대 후반'&&p.author.age>=24&&p.author.age<30)||(filters.age==='30대'&&p.author.age>=30);
+      var g=filters.gender==='전체'||p.author.gender===filters.gender;
+      var s=filters.school==='전체'||p.author.school===filters.school;
+      return r&&a&&g&&s;
+    });
+    if(!filtered.length){container.innerHTML='<p class="text-center text-gray-500" style="padding:2rem 0">조건에 맞는 글이 없어요. 필터를 바꿔 보세요.</p>';return;}
+    filtered.forEach(function(post){
+      var art=document.createElement('article');
+      art.className='card'; art.style.padding='1rem';
+      art.innerHTML='<div style="display:flex;gap:0.75rem"><div class="avatar-placeholder avatar-md">👤</div><div style="flex:1;min-width:0"><p class="font-medium text-primary">'+post.author.nickname+'</p><p class="text-xs text-gray-500">'+post.author.region+' · '+post.author.age+'세 · '+post.author.gender+' · '+post.author.school+'</p><p class="text-sm text-gray-500">'+post.createdAt+'</p></div></div><p class="text-primary" style="margin-top:0.75rem">'+post.content+'</p><div style="display:flex;align-items:center;gap:1rem;margin-top:1rem"><button type="button" class="like-btn" data-id="'+post.id+'" style="display:flex;align-items:center;gap:0.25rem;font-size:0.875rem;color:var(--color-gray-500);background:none;border:none;cursor:pointer">❤️ <span class="like-count">'+post.likes+'</span></button><span class="text-sm text-gray-500">💬 '+post.comments+'</span></div>';
+      container.appendChild(art);
+    });
+    container.querySelectorAll('.like-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var id=this.dataset.id;
+        var p=posts.find(function(x){return x.id===id;});
+        if(p){p.liked=!p.liked;p.likes+=p.liked?1:-1;renderPosts();}
+      });
+    });
+  }
+  renderPosts();
+})();
+</script>
+</body>
+</html>
