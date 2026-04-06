@@ -1,0 +1,25 @@
+<head th:fragment="head(title)" xmlns:th="http://www.thymeleaf.org">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="theme-color" content="#FFFFFF"/>
+  <title th:text="${title}">HIDE</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script th:inline="javascript">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#111111', surface: '#F5F5F5', white: '#FFFFFF' },
+          fontFamily: { sans: ['Pretendard', 'Apple SD Gothic Neo', 'sans-serif'] },
+          borderRadius: { card: '1.25rem', button: '0.75rem' },
+          boxShadow: {
+            card: '0 2px 12px rgba(0,0,0,0.06)',
+            'card-strong': '0 4px 20px rgba(0,0,0,0.12)'
+          },
+          borderColor: { primary: '#111111' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/hide-app.css}"/>
+</head>

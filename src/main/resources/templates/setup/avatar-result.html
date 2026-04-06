@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('아바타 완성')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell flex-1 flex flex-col items-center justify-center max-w-sm mx-auto w-full">
+  <p class="text-primary font-semibold text-lg mb-4">당신의 아바타입니다</p>
+  <div class="rounded-card bg-surface border-2 border-primary/10 w-full aspect-square max-w-[280px] flex items-center justify-center overflow-hidden">
+    <img th:if="${avatarUrl != null}" th:src="${avatarUrl}" alt="생성된 아바타" class="w-full h-full object-cover rounded-card"/>
+    <span th:unless="${avatarUrl != null}" class="text-8xl">👤</span>
+  </div>
+  <p class="text-gray-600 text-sm mt-4 text-center">
+    남들에게 보여질 때 이상형 부합도가 <span class="font-semibold text-primary">85%~95%</span> 사이로 보여져요
+  </p>
+  <a href="/setup/hand" class="w-full py-3.5 bg-primary text-white rounded-button font-medium mt-10 text-center">다음</a>
+</div>
+</body>
+</html>

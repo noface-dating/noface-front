@@ -57,6 +57,14 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.jspecify:jspecify:1.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework:spring-tx'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Broader image decode (WebP variants, progressive JPEG, etc.) — JDK ImageIO alone often returns null for phone uploads
+    implementation 'com.twelvemonkeys.imageio:imageio-core:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-webp:3.13.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.13.1'
 
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
