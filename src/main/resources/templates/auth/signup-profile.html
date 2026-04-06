@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('프로필 정보')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-primary inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 flex flex-col w-full">
+    <h1 class="text-2xl font-semibold text-primary">프로필 정보</h1>
+    <p class="text-gray-500 mt-1 text-sm">닉네임과 기본 정보를 입력해 주세요</p>
+    <form th:action="@{/signup/profile-info}" method="post" class="mt-8 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">닉네임</label>
+        <input type="text" name="nickname" class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary" placeholder="닉네임"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">생년월일</label>
+        <div class="flex gap-2">
+          <select name="birthYear" class="flex-1 px-3 py-3 border-2 border-primary/30 rounded-button focus:border-primary bg-white">
+            <option value="">년</option>
+            <option th:each="y : ${years}" th:value="${y}" th:text="|${y}년|">1990년</option>
+          </select>
+          <select name="birthMonth" class="flex-1 px-3 py-3 border-2 border-primary/30 rounded-button focus:border-primary bg-white">
+            <option value="">월</option>
+            <option th:each="m : ${months}" th:value="${m}" th:text="|${m}월|">1월</option>
+          </select>
+          <select name="birthDay" class="flex-1 px-3 py-3 border-2 border-primary/30 rounded-button focus:border-primary bg-white">
+            <option value="">일</option>
+            <option th:each="d : ${days}" th:value="${d}" th:text="|${d}일|">1일</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">성별</label>
+        <div class="flex gap-2">
+          <button type="button" id="gMale" class="flex-1 py-3 rounded-button font-medium border-2 border-primary/30 text-primary gender-btn">남성</button>
+          <button type="button" id="gFemale" class="flex-1 py-3 rounded-button font-medium border-2 border-primary/30 text-primary gender-btn">여성</button>
+        </div>
+        <input type="hidden" name="gender" id="genderInput" value=""/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">사는 지역</label>
+        <input type="text" name="region" class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary" placeholder="예: 서울 강남구"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">간단한 자기소개</label>
+        <textarea name="intro" rows="4" placeholder="자기소개를 입력해 주세요"
+                  class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary resize-none"></textarea>
+      </div>
+      <button type="submit" class="w-full py-3.5 bg-primary text-white rounded-button font-medium mt-6">다음</button>
+    </form>
+  </div>
+</div>
+<script>
+  (function () {
+    var male = document.getElementById('gMale');
+    var female = document.getElementById('gFemale');
+    var inp = document.getElementById('genderInput');
+    function styleGender() {
+      male.className = 'flex-1 py-3 rounded-button font-medium border-2 ' + (inp.value === '남' ? 'bg-primary text-white border-primary' : 'border-primary/30 text-primary gender-btn');
+      female.className = 'flex-1 py-3 rounded-button font-medium border-2 ' + (inp.value === '여' ? 'bg-primary text-white border-primary' : 'border-primary/30 text-primary gender-btn');
+    }
+    male.addEventListener('click', function () { inp.value = '남'; styleGender(); });
+    female.addEventListener('click', function () { inp.value = '여'; styleGender(); });
+  })();
+</script>
+</body>
+</html>

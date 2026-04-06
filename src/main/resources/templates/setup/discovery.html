@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('탐색 설정')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-gray-600 inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 w-full">
+    <h1 class="text-2xl font-semibold text-primary">탐색 설정</h1>
+    <p class="text-gray-600 mt-1 text-sm">매칭 우선순위: 비슷한 관심사를 가진 사람이 먼저 노출돼요</p>
+    <form th:action="@{/setup/discovery}" method="post" class="mt-8 space-y-6">
+      <div>
+        <label class="block text-sm font-medium text-primary mb-2">거리 (km)</label>
+        <div class="flex items-center gap-2">
+          <input type="number" name="distanceMin" value="0" min="0"
+                 class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+          <span class="text-gray-500">~</span>
+          <input type="number" name="distanceMax" value="50" min="0"
+                 class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-2">선호 나이</label>
+        <div class="flex items-center gap-2">
+          <input type="number" name="ageMin" value="20" min="18" max="99"
+                 class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+          <span class="text-gray-500">~</span>
+          <input type="number" name="ageMax" value="35" min="18" max="99"
+                 class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+        </div>
+      </div>
+      <button type="submit" class="w-full py-3.5 bg-primary text-white rounded-button font-medium">시작하기</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

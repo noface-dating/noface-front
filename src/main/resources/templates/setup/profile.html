@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/head :: head('프로필 설정')}"></head>
+<body class="min-h-screen min-h-[100dvh] bg-white flex flex-col p-6">
+<div class="app-shell w-full max-w-sm mx-auto flex flex-col flex-1">
+  <a href="javascript:history.back()" class="self-start p-2 -ml-2 text-gray-600 inline-tap" aria-label="뒤로">←</a>
+  <div class="flex-1 w-full">
+    <h1 class="text-2xl font-semibold text-primary">프로필 설정</h1>
+    <p class="text-gray-600 mt-1 text-sm">기본 정보를 입력해 주세요</p>
+    <form th:action="@{/setup/profile}" method="post" class="mt-8 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">닉네임</label>
+        <input type="text" name="nickname" required placeholder="닉네임"
+               class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">나이</label>
+        <input type="number" name="age" min="18" max="99" required placeholder="나이"
+               class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">지역</label>
+        <input type="text" name="region" required placeholder="예: 서울, 강남구"
+               class="w-full px-4 py-3 border-2 border-primary/30 rounded-button focus:border-primary"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-primary mb-1">한 줄 소개</label>
+        <textarea name="intro" rows="3" required
+                  class="w-full px-4 py-3 border-2 border-primary/30 rounded-button resize-none focus:border-primary"></textarea>
+      </div>
+      <button type="submit" class="w-full py-3.5 bg-primary text-white rounded-button font-medium mt-4">다음</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>
