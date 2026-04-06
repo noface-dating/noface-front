@@ -1,13 +1,19 @@
-package com.duri.durifront.web;
+/**
+ * @author kyw10987
+ *
+ * Ambiguous mapping 진규씨^^
+ */
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-
-@Controller
-public class RootWebController {
-
-    @GetMapping("/")
-    public String root() {
-        return "redirect:/onboarding";
-    }
-}
+//package com.duri.durifront.web;
+//
+//import org.springframework.stereotype.Controller;
+//import org.springframework.web.bind.annotation.GetMapping;
+//
+//@Controller
+//public class RootWebController {
+//
+//    @GetMapping("/")
+//    public String root() {
+//        return "redirect:/onboarding";
+//    }
+//}
