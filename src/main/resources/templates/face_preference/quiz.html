@@ -36,7 +36,8 @@
                 transition-all duration-200 hover:border-[#111]"
          style="aspect-ratio: 3/4;">
       <img id="img1" src="" alt="" class="absolute inset-0 w-full h-full"
-           style="object-fit:contain; image-rendering:-webkit-optimize-contrast; image-rendering:high-quality;"
+           style="object-fit:cover; image-rendering:auto;"
+           decoding="async" fetchpriority="high"
            onerror="this.style.display='none'; document.getElementById('ph1').style.display='flex';"/>
       <div id="ph1" class="absolute inset-0 flex items-center justify-center" style="display:none;">
         <span style="font-size:4rem;">👤</span>
@@ -48,7 +49,8 @@
                 transition-all duration-200 hover:border-[#111]"
          style="aspect-ratio: 3/4;">
       <img id="img2" src="" alt="" class="absolute inset-0 w-full h-full"
-           style="object-fit:contain; image-rendering:-webkit-optimize-contrast; image-rendering:high-quality;"
+           style="object-fit:cover; image-rendering:auto;"
+           decoding="async" fetchpriority="high"
            onerror="this.style.display='none'; document.getElementById('ph2').style.display='flex';"/>
       <div id="ph2" class="absolute inset-0 flex items-center justify-center" style="display:none;">
         <span style="font-size:4rem;">👤</span>
@@ -57,11 +59,6 @@
   </div>
 
   <p id="loadingMsg" class="text-center text-gray-400 py-16 text-sm">불러오는 중...</p>
-  <button type="button" onclick="skip()"
-          id="skipBtn" style="display:none;"
-          class="mt-5 w-full text-sm text-gray-400 underline text-center py-2">
-    건너뛰기
-  </button>
 
   <script>
     (function () {
@@ -73,7 +70,6 @@
       const elBar  = document.getElementById('progressBar');
       const elGrid = document.getElementById('choiceGrid');
       const elLoad = document.getElementById('loadingMsg');
-      const elSkip = document.getElementById('skipBtn');
       const card1 = document.getElementById('card1');
       const card2 = document.getElementById('card2');
 
@@ -90,7 +86,6 @@
           elLoad.style.display = 'block';
           elLoad.textContent = '질문이 비어있습니다. questions.json 또는 이미지 경로를 확인해주세요.';
           elGrid.style.display = 'none';
-          elSkip.style.display = 'none';
           return;
         }
         if (idx >= questions.length) { submit(); return; }
@@ -131,16 +126,6 @@
         setTimeout(render, 350);
       }
 
-      function skip() {
-        if (answered) return;
-        answered = true;
-        const q = questions[idx];
-        answers.push({ questionId: q.questionId, questionText: q.questionText,
-          choiceId: null, choiceLabel: null, isTimeout: true, answeredAt: new Date().toISOString() });
-        idx++;
-        setTimeout(render, 150);
-      }
-
       function submit() {
         const form = document.createElement('form');
         form.method = 'POST';
@@ -165,7 +150,6 @@
           questions = Array.isArray(data) ? data : [];
           elLoad.style.display = 'none';
           elGrid.style.display = 'grid';
-          elSkip.style.display = 'block';
           render();
         })
         .catch(e => {
