@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +12,7 @@ import com.duri.durifront.chat.client.ChatClient;
 import com.duri.durifront.chat.dto.request.ChatRoomCreateRequestDTO;
 import com.duri.durifront.chat.dto.response.ChatRoomCreateResponseDTO;
 import com.duri.durifront.like.entity.UserLike;
-import com.duri.durifront.like.entity.UserMatch;
 import com.duri.durifront.like.repository.UserLikeRepository;
-import com.duri.durifront.like.repository.UserMatchRepository;
 import com.duri.durifront.user.entity.User;
 import com.duri.durifront.user.repository.UserRepository;
 
@@ -29,10 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 public class LikeService {
 
 	private final UserLikeRepository userLikeRepository;
-	private final UserMatchRepository userMatchRepository;
 	private final UserRepository userRepository;
 	private final ChatClient chatClient;
-	private final MatchNotificationService notificationService;
+	private final MatchSaveService matchSaveService;
+	private final MatchNotificationService matchNotificationService;
 
 	/**
 	 * 좋아요 전송
@@ -84,14 +81,10 @@ public class LikeService {
 				log.warn("[채팅방 생성 실패] 채팅 서버 미응답 또는 오류 - 매칭은 정상 처리됨. error={}", e.getMessage());
 			}
 
-			// 4. UserMatch 저장 - UNIQUE(user1_id, user2_id) 제약으로 동시 매칭 시 하나만 저장됨
-			// 동시 요청에서 두 트랜잭션 모두 이 지점에 도달해도, DB 유니크 제약이 중복 INSERT를 차단하여
-			// 채팅방 알림이 한 번만 전송되는 것을 보장한다.
-			try {
-				userMatchRepository.save(UserMatch.of(fromUserId, toUserId, roomId));
-				notificationService.sendMatchNotification(fromUserId, toUserId, roomId);
-			} catch (DataIntegrityViolationException e) {
-				log.warn("[중복 매칭 방지] 이미 처리된 매칭입니다. fromUser={}, toUser={}", fromUserId, toUserId);
+			// 4. UserMatch 저장 - REQUIRES_NEW 트랜잭션으로 분리하여 중복 시 부모 트랜잭션 오염 방지
+			boolean isNewMatch = matchSaveService.tryCreateMatch(fromUserId, toUserId, roomId);
+			if (isNewMatch) {
+				matchNotificationService.sendMatchNotification(fromUserId, toUserId, roomId);
 			}
 
 			return LikeResult.ofMatched();

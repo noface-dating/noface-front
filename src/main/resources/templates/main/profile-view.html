@@ -69,9 +69,28 @@
   var currentUserId = /*[[${currentUserId}]]*/ '';
   var showHand = false;
   var user = null;
+  var me = null;
   var compat = 0;
 
   function getAge(bd){ if(!bd) return user.age||20; var t=new Date(),b=new Date(bd),a=t.getFullYear()-b.getFullYear(),m=t.getMonth()-b.getMonth(); if(m<0||(m===0&&t.getDate()<b.getDate()))a--; return a; }
+
+  async function loadMyProfile() {
+    if (!currentUserId) return;
+    try {
+      const resp = await fetch('/api/profiles/' + currentUserId);
+      if (resp.ok) {
+        const data = await resp.json();
+        let interests = [];
+        if (data.hobbies) {
+          try {
+            let parsed = typeof data.hobbies === 'string' ? JSON.parse(data.hobbies) : data.hobbies;
+            if (Array.isArray(parsed)) interests = parsed;
+          } catch(e) {}
+        }
+        me = { interests: interests.map(x => String(x).replace(/[\[\]"']/g, '').trim()).filter(Boolean) };
+      }
+    } catch(e) {}
+  }
 
   async function loadProfile() {
     try {
@@ -212,7 +231,7 @@
     } catch(e) { console.error(e); }
   });
 
-  loadProfile();
+  loadMyProfile().then(loadProfile);
 })();
 </script>
 </body>

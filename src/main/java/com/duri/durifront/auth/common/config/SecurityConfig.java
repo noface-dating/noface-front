@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
+						.requestMatchers("/main").permitAll()
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/login", "/auth/login").permitAll()
                         .requestMatchers("/onboarding/**").permitAll()

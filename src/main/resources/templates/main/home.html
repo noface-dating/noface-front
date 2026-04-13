@@ -24,11 +24,15 @@
   </div>
 
   <!-- 카드 영역 -->
-  <div id="cardArea" style="flex:1;min-height:0;display:flex;flex-direction:column;padding:0.25rem 1rem 0.25rem;max-width:28rem;margin:0 auto;width:100%;overflow:hidden">
+  <div id="cardArea" style="flex:1;min-height:0;display:none;flex-direction:column;padding:0.25rem 1rem 0.25rem;max-width:28rem;margin:0 auto;width:100%;overflow:hidden">
     <div id="cardContainer" class="card" style="flex:1;display:flex;flex-direction:column;min-height:0;transition:transform 0.3s,opacity 0.3s">
       <!-- 사진 -->
       <div id="photoArea" class="card-photo" style="max-height:50vh;flex:1;cursor:pointer">
+        <!-- 아바타 -->
+        <img id="avatarImg" src="" alt="아바타" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit">
         <span id="avatarEmoji" class="text-5xl">👤</span>
+        <!-- 손사진 -->
+        <img id="handImg" src="" alt="손사진" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:inherit">
         <span id="handEmoji" class="text-5xl" style="display:none">🖐️</span>
         <div class="badge badge-dark" style="bottom:0.5rem;left:0.5rem" id="photoToggleHint">🖐️ 손사진 보기</div>
         <div class="badge badge-glass" style="top:0.5rem;right:0.5rem;text-align:right">
@@ -40,7 +44,7 @@
       <!-- 프로필 요약 -->
       <div id="profileSummary" style="padding:0.75rem 1rem;border-top:1px solid rgba(17,17,17,0.1);cursor:pointer" class="hover-bg-surface transition-colors">
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <h2 id="cardName" class="text-lg font-semibold text-primary">서아, 24</h2>
+          <h2 id="cardName" class="text-lg font-semibold text-primary"></h2>
           <span class="text-xs text-blue-500 font-medium">자세히 보기 →</span>
         </div>
         <p id="cardIntro" class="text-sm text-gray-600 mt-1 line-clamp-2">💬</p>
@@ -105,6 +109,7 @@
   var cards = [], idx = 0, showHand = false, page = parseInt(sessionStorage.getItem('noface_page') || '0');
   var user = M.mockUser;
   var currentUserId = /*[[${userId}]]*/ '';
+  var sseSource = null;
 
   async function load() {
     if (!currentUserId) { console.error('userId is empty. User may not be logged in.'); return; }
@@ -130,6 +135,58 @@
     updateDirectCount();
     updateNotiCount();
     renderCard();
+    subscribeSSE();
+  }
+
+  // ── SSE 구독 (실시간 매칭 알림) ──
+  function subscribeSSE() {
+    if (sseSource) sseSource.close();
+    sseSource = new EventSource('/api/notifications/subscribe/' + encodeURIComponent(currentUserId));
+    sseSource.addEventListener('match', function(e) {
+      updateNotiCount();
+    });
+    sseSource.onerror = function() {
+      sseSource.close();
+      sseSource = null;
+    };
+  }
+
+  // ── 알림 수 조회 (DB 기반) ──
+  async function updateNotiCount() {
+    try {
+      const resp = await fetch('/api/notifications/' + encodeURIComponent(currentUserId) + '/unread-count');
+      if (resp.ok) {
+        const data = await resp.json();
+        var badge = document.getElementById('notiBadge');
+        var count = data.count || 0;
+        if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+        else { badge.style.display = 'none'; }
+      }
+    } catch(e) { console.error('알림 수 조회 실패', e); }
+  }
+
+  // ── 알림 목록 조회 (DB 기반) ──
+  async function renderNoti() {
+    var list = document.getElementById('notiList');
+    list.innerHTML = '<p class="text-center text-gray-400" style="padding:2rem 0;font-size:0.875rem">로딩 중...</p>';
+    try {
+      const resp = await fetch('/api/notifications/' + encodeURIComponent(currentUserId));
+      if (!resp.ok) throw new Error('API 오류');
+      var notis = await resp.json();
+      if (!notis.length) {
+        list.innerHTML = '<p class="text-center text-gray-400" style="padding:3rem 0;font-size:0.875rem">알림이 없어요.</p>';
+        return;
+      }
+      list.innerHTML = '';
+      notis.forEach(function(n) {
+        var div = document.createElement('div');
+        div.style.cssText = 'padding:0.75rem;border-radius:0.75rem;border:1px solid ' + (n.read ? 'var(--color-gray-100)' : 'var(--color-blue-100)') + ';background:' + (n.read ? '#fff' : 'rgba(239,246,255,0.5)');
+        div.innerHTML = '<div style="display:flex;align-items:start;gap:0.5rem"><span style="font-size:1.25rem">🎉</span><div style="flex:1;min-width:0"><p class="text-sm font-medium text-primary">' + n.message + '</p><button type="button" onclick="location.href=\'/messages\'" style="font-size:0.7rem;color:var(--color-blue-500);background:none;border:none;cursor:pointer;padding:0;margin-top:0.25rem">대화하기 →</button><p style="font-size:0.625rem;color:var(--color-gray-300);margin-top:0.25rem">' + new Date(n.createdAt).toLocaleString('ko-KR') + '</p></div></div>';
+        list.appendChild(div);
+      });
+    } catch(e) {
+      list.innerHTML = '<p class="text-center text-gray-400" style="padding:3rem 0;font-size:0.875rem">알림을 불러오지 못했어요.</p>';
+    }
   }
 
   function renderCard() {
@@ -137,22 +194,39 @@
     if (!c) { document.getElementById('cardArea').style.display='none'; document.getElementById('emptyState').style.display='flex'; return; }
     document.getElementById('cardArea').style.display='flex'; document.getElementById('emptyState').style.display='none';
     document.getElementById('cardName').textContent = c.nickname+', '+c.age;
-    document.getElementById('cardIntro').textContent = '💬 '+c.intro;
-    document.getElementById('cardRegion').textContent = '📍 '+c.region;
+    document.getElementById('cardIntro').textContent = '💬 '+(c.intro || '');
+    document.getElementById('cardRegion').textContent = '📍 '+(c.region || '');
     document.getElementById('compatBadge').textContent = c.compatibility+'%';
     document.getElementById('cardCounter').textContent = (idx+1)+' / '+cards.length;
     var tagsEl = document.getElementById('cardTags');
     tagsEl.innerHTML = '';
     c.interests.slice(0,4).forEach(function(t){ var s=document.createElement('span'); s.className='tag'; s.textContent=t; tagsEl.appendChild(s); });
     if(c.interests.length>4){ var s=document.createElement('span'); s.className='text-xs text-gray-500'; s.style.padding='0.125rem 0.375rem'; s.textContent='+'+(c.interests.length-4); tagsEl.appendChild(s); }
+    // 사진 URL 세팅
+    document.getElementById('avatarImg').src = c.avatarUrl || '';
+    document.getElementById('handImg').src = c.handPhotoUrl || '';
     showHand = false; updatePhoto();
     document.getElementById('cardContainer').className='card'; // reset animation
   }
 
   function updatePhoto() {
-    document.getElementById('avatarEmoji').style.display = showHand ? 'none' : '';
-    document.getElementById('handEmoji').style.display = showHand ? '' : 'none';
-    document.getElementById('photoToggleHint').textContent = showHand ? '👤 아바타 보기' : '🖐️ 손사진 보기';
+    var hasAvatar = !!cards[idx] && !!cards[idx].avatarUrl;
+    var hasHand   = !!cards[idx] && !!cards[idx].handPhotoUrl;
+    // 아바타 영역
+    document.getElementById('avatarImg').style.display   = (!showHand && hasAvatar) ? 'block' : 'none';
+    document.getElementById('avatarEmoji').style.display = (!showHand && !hasAvatar) ? '' : 'none';
+    // 손사진 영역
+    document.getElementById('handImg').style.display     = (showHand && hasHand) ? 'block' : 'none';
+    document.getElementById('handEmoji').style.display   = (showHand && !hasHand) ? '' : 'none';
+    // 토글 힌트: 손사진 없으면 버튼 숨김
+    var hint = document.getElementById('photoToggleHint');
+    if (!showHand) {
+      hint.style.display = hasHand ? '' : 'none';
+      hint.textContent = '🖐️ 손사진 보기';
+    } else {
+      hint.style.display = '';
+      hint.textContent = '👤 아바타 보기';
+    }
   }
 
   function updateDirectCount() {
@@ -160,12 +234,6 @@
     document.getElementById('directCount').textContent = '✉️ '+r+'/3';
     document.getElementById('directLabel').textContent = '메시지 ('+r+')';
     document.getElementById('directBtn').style.opacity = r<=0?'0.4':'1';
-  }
-
-  function updateNotiCount() {
-    var c = S.getUnreadNotificationCount(user.id);
-    var badge = document.getElementById('notiBadge');
-    if(c>0){ badge.textContent=c; badge.style.display='flex'; } else { badge.style.display='none'; }
   }
 
   async function goNext() {
@@ -244,21 +312,13 @@
     } else panel.style.display='none';
   });
   document.getElementById('closeNoti').addEventListener('click', function(){ document.getElementById('notiPanel').style.display='none'; });
-  document.getElementById('markAllRead').addEventListener('click', function(){ S.markAllNotificationsRead(user.id); updateNotiCount(); renderNoti(); });
-
-  function renderNoti(){
-    var list = document.getElementById('notiList');
-    var notis = S.getNotifications(user.id);
-    if(!notis.length){ list.innerHTML='<p class="text-center text-gray-400" style="padding:3rem 0;font-size:0.875rem">알림이 없어요.</p>'; return; }
-    list.innerHTML = '';
-    notis.forEach(function(n){
-      var partner = M.mockCards.find(function(c){return c.id===n.partnerId;});
-      var div = document.createElement('div');
-      div.style.cssText = 'padding:0.75rem;border-radius:0.75rem;border:1px solid '+(n.read?'var(--color-gray-100)':'var(--color-blue-100)')+';background:'+(n.read?'#fff':'rgba(239,246,255,0.5)');
-      div.innerHTML = '<div style="display:flex;align-items:start;gap:0.5rem"><span style="font-size:1.25rem">🎉</span><div style="flex:1;min-width:0"><p class="text-sm font-medium text-primary">'+(partner?partner.nickname:'알 수 없음')+'님과 매칭!</p><p class="text-xs text-gray-500" style="margin-top:0.125rem">'+n.message+'</p><p style="font-size:0.625rem;color:var(--color-gray-300);margin-top:0.25rem">'+new Date(n.createdAt).toLocaleString('ko-KR')+'</p></div></div>';
-      list.appendChild(div);
-    });
-  }
+  document.getElementById('markAllRead').addEventListener('click', async function(){
+    try {
+      await fetch('/api/notifications/' + encodeURIComponent(currentUserId) + '/read-all', { method: 'PATCH' });
+    } catch(e) { console.error(e); }
+    updateNotiCount();
+    renderNoti();
+  });
 
   load();
 })();
