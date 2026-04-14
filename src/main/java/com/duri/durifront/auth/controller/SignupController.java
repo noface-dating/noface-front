@@ -51,7 +51,7 @@ public class SignupController {
         mv.addObject("tempKey", tempKey);
         mv.addObject("signupProfileRequest",
                 new SignupProfileRequestDto(null, null, null,
-                        null, null, null));
+                        null, null));
 
         int currentYear = LocalDate.now().getYear();
 

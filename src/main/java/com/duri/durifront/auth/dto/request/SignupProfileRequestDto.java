@@ -22,8 +22,6 @@ public record SignupProfileRequestDto(
         @Size(max = 50, message = "지역은 50자 이하로 입력해주세요.")
         String region,
 
-        List<String> additionalInformation,
-
-        List<String> hobbies
+        List<String> additionalInformation
 ) {
 }
