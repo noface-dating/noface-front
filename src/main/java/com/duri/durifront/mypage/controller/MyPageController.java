@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyPageController {
 
+    @Value("${auth.server.url}")
+    private String authServerUrl;
+
     private final ProfileRepository profileRepository;
     private final ObjectMapper objectMapper;
     private final CookieService cookieService;
@@ -28,6 +32,9 @@ public class MyPageController {
     @GetMapping
     public String index(@UserId String userId, Model model) {
         if (userId == null) return "redirect:/login";
+
+        model.addAttribute("authServerUrl", authServerUrl);
+
         setDefaults(model);
         profileRepository.findByUserUserId(userId).ifPresent(p -> populateModel(model, p));
         return "mypage/index";

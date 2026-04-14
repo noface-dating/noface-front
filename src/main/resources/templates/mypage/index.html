@@ -57,7 +57,9 @@
             <span class="text-sm text-[#111] font-medium">고객지원</span>
             <span class="text-gray-400 text-lg">›</span>
         </a>
-        <form method="post" action="/mypage/logout">
+
+        <!-- 로그아웃 -->
+        <form method="post" th:action="@{${authServerUrl} + '/auth/logout'}">
             <button type="submit"
                     class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F5F5F0] transition-colors text-left">
                 <span class="text-sm text-red-500 font-medium">로그아웃</span>
