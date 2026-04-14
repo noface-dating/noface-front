@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="auth-server-url" th:content="${authServerUrl}">
     <title>마이페이지 - Hide</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -59,13 +60,12 @@
         </a>
 
         <!-- 로그아웃 -->
-        <form method="post" th:action="@{${authServerUrl} + '/auth/logout'}">
-            <button type="submit"
-                    class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F5F5F0] transition-colors text-left">
-                <span class="text-sm text-red-500 font-medium">로그아웃</span>
-                <span class="text-gray-400 text-lg">›</span>
-            </button>
-        </form>
+        <button type="button"
+                onclick="logout()"
+                class="w-full flex items-center justify-between px-4 py-4 hover:bg-[#F5F5F0] transition-colors text-left">
+            <span class="text-sm text-red-500 font-medium">로그아웃</span>
+            <span class="text-gray-400 text-lg">›</span>
+        </button>
     </div>
 </div>
 
@@ -93,5 +93,26 @@
         <span class="text-xs font-semibold">프로필</span>
     </a>
 </nav>
+
+<script>
+    async function logout() {
+        const authServerUrl = document
+            .querySelector('meta[name="auth-server-url"]')
+            .content;
+
+        try {
+            const response = await fetch(`${authServerUrl}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            // 성공 여부 상관없이 홈으로 이동
+            window.location.href = '/';
+
+        } catch (e) {
+            window.location.href = '/';
+        }
+    }
+</script>
 </body>
 </html>
