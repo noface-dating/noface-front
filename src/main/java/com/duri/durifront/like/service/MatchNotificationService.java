@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.duri.durifront.profile.repository.ProfileRepository;
+import com.duri.durifront.notification.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class MatchNotificationService {
 
 	/** userId → SseEmitter 매핑 */
 	private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-	private final ProfileRepository profileRepository;
+	private final NotificationService notificationService;
 	private static final long SSE_TIMEOUT = 30 * 60 * 1000L; // 30분
 
 	/**
@@ -55,8 +55,13 @@ public class MatchNotificationService {
 
 	/**
 	 * 매칭 성공 알림 전송 (양쪽 유저 모두에게)
+	 * DB 저장 + SSE 실시간 전송 병행
 	 */
 	public void sendMatchNotification(String user1Id, String user2Id, UUID roomId) {
+		// DB에 알림 저장 (SSE 연결 여부와 무관하게 항상 저장)
+		notificationService.saveMatchNotifications(user1Id, user2Id);
+
+		// SSE 실시간 전송 (연결 중인 경우에만)
 		String roomIdStr = roomId != null ? roomId.toString() : "";
 		String payload = String.format(
 			"{\"roomId\": \"%s\", \"partnerId\": \"%s\", \"message\": \"새로운 매칭이 성사되었어요! 🎉\"}", roomIdStr, user2Id);

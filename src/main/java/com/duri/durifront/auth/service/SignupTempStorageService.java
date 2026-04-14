@@ -8,6 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * 회원가입 페이지에서 들어온 데이터를 임시로 저장하는 클래스
+ * - 데이터 가공 및 정책 결정은 해당 클래스의 책임X
+ */
 @RequiredArgsConstructor
 @Service
 public class SignupTempStorageService {

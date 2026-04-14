@@ -23,8 +23,8 @@ public class PageController {
     }
 
     // ── 온보딩 ──
-    @GetMapping("/onboarding")
-    public String onboarding() { return "onboarding/onboarding"; }
+    @GetMapping("/")
+    public String onboarding() { return "onboarding/start"; }
 
     @GetMapping("/onboarding/find-type")
     public String findType() { return "face_preference/find-type"; }
@@ -55,7 +55,7 @@ public class PageController {
     public String setupDiscovery() { return "setup/discovery-preferences"; }
 
     // ── 메인 앱 ──
-    @GetMapping("/")
+    @GetMapping("/main")
     public String home(Model model) {
         model.addAttribute("userId", getCurrentUserId());
         return "main/home";
@@ -75,7 +75,7 @@ public class PageController {
     @GetMapping("/profile/{userId}")
     public String profileView(@PathVariable String userId, Model model) {
         model.addAttribute("currentUserId", getCurrentUserId());
-        return "mypage/edit";
+        return "main/profile-view";
     }
 
     @GetMapping("/community")

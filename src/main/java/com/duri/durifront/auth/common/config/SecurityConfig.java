@@ -2,6 +2,7 @@ package com.duri.durifront.auth.common.config;
 
 import com.duri.durifront.auth.filter.JwtAuthenticationFilter;
 import com.duri.durifront.auth.filter.JwtExceptionFilter;
+import com.duri.durifront.auth.handler.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,24 +37,35 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 허용
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
+
                         // 에러 페이지 허용 (템플릿 에러 발생 시 /error로 포워딩되어 403 방지)
                         .requestMatchers("/error").permitAll()
+
                         // 페이지 라우팅 허용
                         .requestMatchers("/").permitAll()
+						.requestMatchers("/main").permitAll()
                         .requestMatchers("/signup/**").permitAll()
                         .requestMatchers("/login", "/auth/login").permitAll()
                         .requestMatchers("/onboarding/**").permitAll()
-                        .requestMatchers("/setup/**").permitAll()
-                        .requestMatchers("/messages/**").permitAll()
-                        .requestMatchers("/profile/**").permitAll()
-                        .requestMatchers("/community").permitAll()
-                        .requestMatchers("/likes").permitAll()
-                        .requestMatchers("/tier-missions").permitAll()
-                        .requestMatchers("/support/**").permitAll()
-                        .requestMatchers("/mypage/**").permitAll()
 						.requestMatchers("/face-preference/**").permitAll()
+                        .requestMatchers("/setup/**").permitAll()
+                        .requestMatchers("/community").permitAll()
+                        .requestMatchers("/support/**").permitAll()
                         .requestMatchers("/api/**").permitAll()
+
+                        // 로그인 필요
+                        .requestMatchers("/messages/**").authenticated()
+                        .requestMatchers("/profile/**").authenticated()
+                        .requestMatchers("/mypage/**").authenticated()
+                        .requestMatchers("/likes").authenticated()
+                        .requestMatchers("/tier-missions").authenticated()
+
                         .anyRequest().authenticated()
+                )
+
+                // 인증 실패 시 처리
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
 
                 // JWT 필터
