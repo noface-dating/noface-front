@@ -5,13 +5,17 @@ import com.duri.durifront.auth.exception.BaseErrorCode;
 
 public record ErrorResponseDto(
         String code,
-        String message
+        String message,
+        // TODO 제거 필요한 DEBUG POINT
+        String trace
 ) {
 
-    public static ErrorResponseDto from (BaseErrorCode errorCode) {
+    // TODO 제거 필요한 DEBUG POINT
+    public static ErrorResponseDto from (BaseErrorCode errorCode, Exception e) {
         return new ErrorResponseDto(
                 errorCode.getCode(),
-                errorCode.getMessage()
+                errorCode.getMessage(),
+                e.getMessage()
         );
     }
 }
