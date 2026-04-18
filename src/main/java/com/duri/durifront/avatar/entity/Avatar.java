@@ -2,12 +2,7 @@ package com.duri.durifront.avatar.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,16 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Avatar {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "avatar_id")
-	private Long avatarId;
-
-	@Column(name = "profile_id", nullable = false)
-	private Long profileId;
-
-	@Column(name = "user_id", nullable = false, length = 36)
-	private String userId;
+	@EmbeddedId
+	private AvatarId id;
 
 	@Column(name = "avatar_image_url", nullable = false, length = 200)
 	private String avatarImageUrl;
