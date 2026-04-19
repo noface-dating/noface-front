@@ -30,8 +30,8 @@ public class ChatService {
      *
      * @return 사용자가 속한 채팅방 리스트를 반환
      */
-    public List<ChatRoomSummaryResponseDTO> getMyChatRooms() {
-        return chatClient.getChatRooms();
+    public List<ChatRoomSummaryResponseDTO> getMyChatRooms(String userId) {
+        return chatClient.getChatRooms(userId);
     }
 
     //채팅방 접속시 처음 메시지 로드

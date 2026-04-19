@@ -6,6 +6,7 @@ import com.duri.durifront.avatar.service.AvatarService.AvatarResult;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import com.duri.durifront.auth.annotation.UserId;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +27,11 @@ public class AvatarController {
     @PostMapping(value = "/generate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> generateAvatar(
             @RequestPart("face") MultipartFile face,
-            @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader) {
+            @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader,
+            @UserId String userId) {
 
         var responseType = avatarService.detectResponseType(acceptHeader);
-        AvatarResult result = avatarService.generate(face);
+        AvatarResult result = avatarService.generate(face, userId);
 
         if (MediaType.IMAGE_PNG.equals(responseType)) {
             return ResponseEntity.ok()

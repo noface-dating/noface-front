@@ -23,11 +23,13 @@ public class GlobalExceptionHandler {
         BaseErrorCode errorCode = e.getErrorCode();
 
         log.warn("[AuthException] code: {}, message: {}",
-                errorCode.getCode(), errorCode.getMessage());
+                // TODO 제거 필요한 DEBUG POINT
+                errorCode.getCode(), errorCode.getMessage(), e);
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponseDto.from(errorCode));
+                // TODO 제거 필요한 DEBUG POINT
+                .body(ErrorResponseDto.from(errorCode, e));
     }
 
 
@@ -36,10 +38,12 @@ public class GlobalExceptionHandler {
         BaseErrorCode errorCode = AuthErrorCode.INTERNAL_SERVER_ERROR;
 
         log.error("[Unexpected Exception] code: {}, message: {}",
+                // TODO 제거 필요한 DEBUG POINT
                 errorCode.getCode(), errorCode.getMessage(), e);
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(ErrorResponseDto.from(errorCode));
+                // TODO 제거 필요한 DEBUG POINT
+                .body(ErrorResponseDto.from(errorCode, e));
     }
 }

@@ -1,18 +1,9 @@
 package com.duri.durifront.handphoto.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.duri.durifront.profile.entity.Profile;
+import com.duri.durifront.user.entity.User;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "hand_photo")
@@ -22,16 +13,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class HandPhoto {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "hand_photo_id")
-	private Long handPhotoId;
+	@EmbeddedId
+	private HandPhotoId id;
 
-	@Column(name = "profile_id", nullable = false)
-	private Long profileId;
+	@MapsId("profileId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
 
-	@Column(name = "user_id", nullable = false, length = 36)
-	private String userId;
+	@MapsId("userId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@Column(name = "hand_image", nullable = false, length = 200)
 	private String handImage;

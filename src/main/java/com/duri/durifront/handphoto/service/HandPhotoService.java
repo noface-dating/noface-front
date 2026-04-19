@@ -1,13 +1,20 @@
 package com.duri.durifront.handphoto.service;
 
 import com.duri.durifront.handphoto.dto.HandPhotoUploadResponse;
+import com.duri.durifront.handphoto.entity.HandPhoto;
+import com.duri.durifront.handphoto.entity.HandPhotoId;
 import com.duri.durifront.handphoto.exception.HandPhotoException;
+import com.duri.durifront.handphoto.repository.HandPhotoRepository;
 import com.duri.durifront.handphoto.util.HandPhotoStorageUtil;
+import com.duri.durifront.profile.entity.Profile;
+import com.duri.durifront.profile.repository.ProfileRepository;
+import com.duri.durifront.user.entity.User;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -19,8 +26,11 @@ public class HandPhotoService {
 
     private final HandPhotoAnalysisClient analysisClient;
     private final HandPhotoStorageUtil storageUtil;
+    private final ProfileRepository profileRepository;
+    private final HandPhotoRepository handPhotoRepository;
 
-    public HandPhotoUploadResponse upload(MultipartFile imageFile) {
+    @Transactional
+    public HandPhotoUploadResponse upload(MultipartFile imageFile, String userId) {
         String ext = validateFile(imageFile);
 
         byte[] imageBytes = toBytes(imageFile);
@@ -34,6 +44,21 @@ public class HandPhotoService {
         String uuid = UUID.randomUUID().toString();
         String fileName = storageUtil.save(imageBytes, uuid, ext);
         String handPhotoUrl = storageUtil.publicHandPhotoUrl(fileName);
+
+        Profile profile = profileRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new HandPhotoException("프로필이 존재하지 않습니다."));
+        User user = profile.getUser();
+
+        HandPhotoId id = new HandPhotoId(profile.getProfileId(), user.getUserId());
+        HandPhoto handPhoto = HandPhoto.builder()
+                .id(id)
+                .profile(profile)
+                .user(user)
+                .handImage(handPhotoUrl)
+                .status(HandPhoto.HandPhotoStatus.PENDING)
+                .build();
+        handPhotoRepository.save(handPhoto);
+
         return new HandPhotoUploadResponse(handPhotoUrl);
     }
 

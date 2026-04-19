@@ -1,5 +1,6 @@
 package com.duri.durifront.chat.client;
 
+import com.duri.durifront.auth.annotation.UserId;
 import com.duri.durifront.chat.dto.request.ChatRoomCreateRequestDTO;
 import com.duri.durifront.chat.dto.response.ChatMessageResponseDTO;
 import com.duri.durifront.chat.dto.response.ChatMessageSliceResponseDTO;
@@ -27,7 +28,7 @@ public interface ChatClient {
     ChatRoomCreateResponseDTO createChatRoom(@RequestBody ChatRoomCreateRequestDTO request);
 
     @GetMapping
-    List<ChatRoomSummaryResponseDTO> getChatRooms();
+    List<ChatRoomSummaryResponseDTO> getChatRooms(String userId);
 
     @GetMapping("/recent")
     List<ChatMessageResponseDTO> getRecentChatHistory(

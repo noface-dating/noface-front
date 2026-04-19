@@ -1,5 +1,6 @@
 package com.duri.durifront.chat.controller;
 
+import com.duri.durifront.auth.annotation.UserId;
 import com.duri.durifront.chat.dto.response.ChatMessageGroupResponseDTO;
 import com.duri.durifront.chat.dto.response.ChatMessageSliceViewDTO;
 import com.duri.durifront.chat.service.ChatService;
@@ -31,8 +32,8 @@ public class ChatController {
      * @return 채팅방 리스트 html view를 반환합니다.
      */
     @GetMapping
-    public String chatList(Model model) {
-        model.addAttribute("chatRooms", chatService.getMyChatRooms());
+    public String chatList(@UserId String userId, Model model) {
+        model.addAttribute("chatRooms", chatService.getMyChatRooms(userId));
         return "chat/chat-list";
     }
 
