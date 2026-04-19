@@ -1,7 +1,14 @@
 package com.duri.durifront.avatar.service;
 
+import com.duri.durifront.avatar.entity.Avatar;
+import com.duri.durifront.avatar.entity.AvatarId;
 import com.duri.durifront.avatar.exception.AvatarException;
+import com.duri.durifront.avatar.repository.AvatarRepository;
 import com.duri.durifront.avatar.util.FileStorageUtil;
+import com.duri.durifront.profile.entity.Profile;
+import com.duri.durifront.profile.repository.ProfileRepository;
+import com.duri.durifront.user.entity.User;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +37,8 @@ public class AvatarService {
 
     private final OpenAIAvatarClient openAIAvatarClient;
     private final FileStorageUtil fileStorageUtil;
+    private final ProfileRepository profileRepository;
+    private final AvatarRepository avatarRepository;
 
     /**
      * true면 OpenAI 키가 없을 때 업로드 원본을 그대로 아바타로 저장(로컬 UI 데모용).
@@ -38,7 +47,7 @@ public class AvatarService {
     @Value("${avatar.fallback-original-without-api:false}")
     private boolean fallbackOriginalWithoutApi;
 
-    public AvatarResult generate(MultipartFile faceFile) {
+    public AvatarResult generate(MultipartFile faceFile, String userId) {
         String ext = validateFile(faceFile);
 
         byte[] faceBytes = toBytes(faceFile);
@@ -49,25 +58,44 @@ public class AvatarService {
 
         String uuid = UUID.randomUUID().toString();
 
+        String avatarUrl;
+        byte[] avatarBytes;
+
         if (!openAIAvatarClient.hasApiKey()) {
             log.warn("OpenAI API key missing — set OPENAI_KEY or openai.api.key (see application-secret.properties)");
             if (fallbackOriginalWithoutApi) {
                 log.warn("avatar.fallback-original-without-api=true → saving uploaded photo as avatar (no AI)");
                 String avatarFileName = fileStorageUtil.saveUploadedAsAvatar(faceBytes, uuid, ext);
-                String avatarUrl = fileStorageUtil.publicAvatarUrl(avatarFileName);
-                return new AvatarResult(avatarUrl, faceBytes);
+                avatarUrl = fileStorageUtil.publicAvatarUrl(avatarFileName);
+                avatarBytes = faceBytes;
+            } else {
+                throw new AvatarException(
+                        "OpenAI API 키가 없어 AI 아바타를 만들 수 없어요. "
+                                + "터미널에서 OPENAI_KEY를 설정하거나 noface-front/application-secret.properties에 "
+                                + "openai.api.key=... 를 넣은 뒤 서버를 다시 시작해 주세요.");
             }
-            throw new AvatarException(
-                    "OpenAI API 키가 없어 AI 아바타를 만들 수 없어요. "
-                            + "터미널에서 OPENAI_KEY를 설정하거나 noface-front/application-secret.properties에 "
-                            + "openai.api.key=... 를 넣은 뒤 서버를 다시 시작해 주세요.");
+        } else {
+            log.info("Calling OpenAI Images /edits for avatar (input {} bytes, mime={})", faceBytes.length, mimeType);
+            avatarBytes = openAIAvatarClient.generateAvatar(faceBytes, mimeType);
+            String avatarFileName = fileStorageUtil.saveAvatar(avatarBytes, uuid);
+            avatarUrl = fileStorageUtil.publicAvatarUrl(avatarFileName);
+            log.info("Avatar saved: {} ({} bytes PNG)", avatarUrl, avatarBytes.length);
         }
 
-        log.info("Calling OpenAI Images /edits for avatar (input {} bytes, mime={})", faceBytes.length, mimeType);
-        byte[] avatarBytes = openAIAvatarClient.generateAvatar(faceBytes, mimeType);
-        String avatarFileName = fileStorageUtil.saveAvatar(avatarBytes, uuid);
-        String avatarUrl = fileStorageUtil.publicAvatarUrl(avatarFileName);
-        log.info("Avatar saved: {} ({} bytes PNG)", avatarUrl, avatarBytes.length);
+        Profile profile = profileRepository.findByUserUserId(userId)
+                .orElseThrow(() -> new AvatarException("프로필이 존재하지 않습니다."));
+        User user = profile.getUser();
+
+        AvatarId id = new AvatarId(profile.getProfileId(), user.getUserId());
+        Avatar avatar = Avatar.builder()
+                .id(id)
+                .profile(profile)
+                .user(user)
+                .avatarImageUrl(avatarUrl)
+                .createdAt(LocalDateTime.now())
+                .build();
+        avatarRepository.save(avatar);
+
         return new AvatarResult(avatarUrl, avatarBytes);
     }
 

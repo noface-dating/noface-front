@@ -1,6 +1,7 @@
 package com.duri.durifront.handphoto.entity;
 
-import com.duri.durifront.handphoto.entity.HandPhotoId;
+import com.duri.durifront.profile.entity.Profile;
+import com.duri.durifront.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +15,16 @@ public class HandPhoto {
 
 	@EmbeddedId
 	private HandPhotoId id;
+
+	@MapsId("profileId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
+
+	@MapsId("userId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@Column(name = "hand_image", nullable = false, length = 200)
 	private String handImage;

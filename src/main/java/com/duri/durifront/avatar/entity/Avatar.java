@@ -1,5 +1,7 @@
 package com.duri.durifront.avatar.entity;
 
+import com.duri.durifront.profile.entity.Profile;
+import com.duri.durifront.user.entity.User;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -19,6 +21,16 @@ public class Avatar {
 
 	@EmbeddedId
 	private AvatarId id;
+
+	@MapsId("profileId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "profile_id")
+	private Profile profile;
+
+	@MapsId("userId")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@Column(name = "avatar_image_url", nullable = false, length = 200)
 	private String avatarImageUrl;

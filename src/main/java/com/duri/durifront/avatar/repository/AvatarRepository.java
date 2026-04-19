@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.duri.durifront.avatar.entity.Avatar;
+import com.duri.durifront.avatar.entity.AvatarId;
 
 @Repository
-public interface AvatarRepository extends JpaRepository<Avatar, Long> {
+public interface AvatarRepository extends JpaRepository<Avatar, AvatarId> {
 
-	Optional<Avatar> findByProfileId(Long profileId);
+	Optional<Avatar> findByIdProfileId(Long profileId);
 
-	Optional<Avatar> findByUserId(String userId);
+	Optional<Avatar> findByIdUserId(String userId);
 }

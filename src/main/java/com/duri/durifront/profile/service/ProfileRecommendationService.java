@@ -40,9 +40,9 @@ public class ProfileRecommendationService {
 		List<ProfileRecommendationDto> allRecommendations = candidates.stream()
 			.map(candidate -> {
 				int compatibility = calculateCompatibility(myProfile, candidate);
-				String avatarUrl = avatarRepository.findByUserId(candidate.getUser().getUserId())
+				String avatarUrl = avatarRepository.findByIdUserId(candidate.getUser().getUserId())
 					.map(Avatar::getAvatarImageUrl).orElse(null);
-				String handPhotoUrl = handPhotoRepository.findByUserId(candidate.getUser().getUserId())
+				String handPhotoUrl = handPhotoRepository.findByIdUserId(candidate.getUser().getUserId())
 					.map(HandPhoto::getHandImage).orElse(null);
 
 				return ProfileRecommendationDto.builder()
@@ -80,10 +80,10 @@ public class ProfileRecommendationService {
 		Profile profile = profileRepository.findByUserUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException("프로필이 존재하지 않습니다."));
 
-		String avatarUrl = avatarRepository.findByUserId(userId)
+		String avatarUrl = avatarRepository.findByIdUserId(userId)
 			.map(Avatar::getAvatarImageUrl).orElse(null);
 		String handPhotoUrl = handPhotoRepository
-			.findByProfileIdAndStatus(profile.getProfileId(), HandPhoto.HandPhotoStatus.APPROVED)
+			.findByIdProfileIdAndStatus(profile.getProfileId(), HandPhoto.HandPhotoStatus.APPROVED)
 			.map(HandPhoto::getHandImage).orElse(null);
 
 		return ProfileDetailDto.builder()
