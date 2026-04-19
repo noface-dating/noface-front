@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.duri.durifront.handphoto.entity.HandPhoto;
+import com.duri.durifront.handphoto.entity.HandPhotoId;
 
 @Repository
-public interface HandPhotoRepository extends JpaRepository<HandPhoto, Long> {
+public interface HandPhotoRepository extends JpaRepository<HandPhoto, HandPhotoId> {
 
-	Optional<HandPhoto> findByProfileIdAndStatus(Long profileId, HandPhoto.HandPhotoStatus status);
+	Optional<HandPhoto> findByIdProfileIdAndStatus(Long profileId, HandPhoto.HandPhotoStatus status);
 
-	Optional<HandPhoto> findByUserId(String userId);
+	Optional<HandPhoto> findByIdUserId(String userId);
 }
