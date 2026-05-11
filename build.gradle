@@ -69,6 +69,9 @@ dependencies {
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
+    // Eureka
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

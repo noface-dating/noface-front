@@ -58,8 +58,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        // TODO 제거 필요한 DEBUG POINT
-        ErrorResponseDto errorResponse = ErrorResponseDto.from(errorCode, null);
+        ErrorResponseDto errorResponse = ErrorResponseDto.from(errorCode);
         objectMapper.writeValue(response.getWriter(), errorResponse);
 
         response.flushBuffer();

@@ -46,7 +46,7 @@ public class SignupService {
         try {
             // 2. JSON --> String 변환
             String hobbiesJson = Objects.isNull(data.getHobbies())
-                    ? "[]"  // TODO: 현재 - 취미 정보는 빈 배열로 우선 생성
+                    ? "[]"  // 현재 - 취미 정보는 빈 배열로 우선 생성
                     : objectMapper.writeValueAsString(data.getHobbies());
 
             String additionalInformationJson = Objects.isNull(data.getAdditionalInformation())

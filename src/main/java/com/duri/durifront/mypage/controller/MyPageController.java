@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyPageController {
 
-    @Value("${auth.server.url}")
+    @Value("${gateway.server.url}")
     private String authServerUrl;
 
     private final ProfileRepository profileRepository;

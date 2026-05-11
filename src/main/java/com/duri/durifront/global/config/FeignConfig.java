@@ -15,7 +15,7 @@ public class FeignConfig {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
-            // TODO JWT 구현 완료되면 로직 작성 완료 할 것.
+            // TODO: JWT 구현 완료되면 로직 작성 완료 할 것.
             requestTemplate.header("X-TEST-HEADER", "1");
         };
     }

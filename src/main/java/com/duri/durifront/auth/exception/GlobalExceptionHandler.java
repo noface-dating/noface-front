@@ -20,16 +20,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ErrorResponseDto> handleAuthException(AuthException e) {
+
         BaseErrorCode errorCode = e.getErrorCode();
 
-        log.warn("[AuthException] code: {}, message: {}",
-                // TODO 제거 필요한 DEBUG POINT
-                errorCode.getCode(), errorCode.getMessage(), e);
+        log.warn(
+                "[AuthException] code: {}, message: {}",
+                errorCode.getCode(),
+                errorCode.getMessage(),
+                e
+        );
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                // TODO 제거 필요한 DEBUG POINT
-                .body(ErrorResponseDto.from(errorCode, e));
+                .body(ErrorResponseDto.from(errorCode));
     }
 
 
@@ -37,13 +40,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDto> handleUnexpectedException(Exception e) {
         BaseErrorCode errorCode = AuthErrorCode.INTERNAL_SERVER_ERROR;
 
-        log.error("[Unexpected Exception] code: {}, message: {}",
-                // TODO 제거 필요한 DEBUG POINT
-                errorCode.getCode(), errorCode.getMessage(), e);
+        log.error(
+                "[Unexpected Exception] code: {}, message: {}",
+                errorCode.getCode(),
+                errorCode.getMessage(),
+                e
+        );
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                // TODO 제거 필요한 DEBUG POINT
-                .body(ErrorResponseDto.from(errorCode, e));
+                .body(ErrorResponseDto.from(errorCode));
     }
 }

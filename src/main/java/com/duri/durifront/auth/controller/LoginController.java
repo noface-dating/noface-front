@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class LoginController {
 
-    @Value("${auth.server.url}")
-    private String authServerUrl;
+    @Value("${gateway.server.url}")
+    private String gatewayServerUrl;
 
     @GetMapping("/login")
     public String loginPage(Model model) {
-        model.addAttribute("authServerUrl", authServerUrl);
+        model.addAttribute("gatewayServerUrl", gatewayServerUrl);
         return "auth/login";
     }
 }
