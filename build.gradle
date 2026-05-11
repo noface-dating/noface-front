@@ -66,6 +66,9 @@ dependencies {
     implementation 'com.twelvemonkeys.imageio:imageio-webp:3.13.1'
     implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.13.1'
 
+    // Swagger (SpringDoc OpenAPI)
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
     // FeignClient
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 

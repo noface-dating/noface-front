@@ -36,6 +36,9 @@ public class SecurityConfig {
                 // URL 권한 설정
                 // TODO: 허용할 URL 추가
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger UI 허용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+
                         // 정적 리소스 허용
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico", "/*.png").permitAll()
 

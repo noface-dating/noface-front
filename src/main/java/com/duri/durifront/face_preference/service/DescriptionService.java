@@ -6,9 +6,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 취향 이지선다 결과 설명 생성 서비스.
+ * <p>응답 조합으로 10자리 이진 키를 생성하고, 성별별 설명 맵에서 이상형 설명 텍스트를 조회한다.</p>
+ */
 @Service
 public class DescriptionService {
 
+    /**
+     * 응답 목록으로부터 10자리 이진 문자열 키를 생성한다.
+     * <p>q1~q10 순서로 각 질문의 선택지를 0(첫 번째 / 타임아웃 / 미응답) 또는 1(두 번째)로 변환한다.</p>
+     *
+     * @param answers 질문별 응답 목록
+     * @param gender  선택 대상 성별
+     * @return 10자리 이진 문자열 키 (예: "0010110100")
+     */
     public String buildKey(List<FacePreferenceAnswerDto> answers, String gender) {
         String[] order = {"q1","q2","q3","q4","q5","q6","q7","q8","q9","q10"};
         StringBuilder sb = new StringBuilder();
@@ -27,6 +39,14 @@ public class DescriptionService {
         return sb.toString();
     }
 
+    /**
+     * 이진 키와 성별에 해당하는 이상형 설명 텍스트를 반환한다.
+     * <p>gender=MALE이면 FEMALE_DESCRIPTIONS, gender=FEMALE이면 MALE_DESCRIPTIONS에서 조회한다.</p>
+     *
+     * @param key    10자리 이진 문자열 키
+     * @param gender 선택 대상 성별
+     * @return 이상형 설명 텍스트, 매칭되는 키가 없으면 기본 설명 반환
+     */
     public String getDescription(String key, String gender) {
         // gender=MALE → 남자 이미지 선택 → 남자 이상형 설명(FEMALE_DESCRIPTIONS)
         // gender=FEMALE → 여자 이미지 선택 → 여자 이상형 설명(MALE_DESCRIPTIONS)
@@ -36,6 +56,12 @@ public class DescriptionService {
         return map.getOrDefault("0000000000", "취향 분석 완료! 당신만의 이상형이 있군요.");
     }
 
+    /**
+     * 응답 목록에서 건너뛴(타임아웃 또는 미응답) 질문 수를 반환한다.
+     *
+     * @param answers 질문별 응답 목록
+     * @return 건너뛴 질문 수
+     */
     public int countSkipped(List<FacePreferenceAnswerDto> answers) {
         return (int) answers.stream()
                 .filter(a -> a.getChoiceId() == null || a.getChoiceId().isEmpty()
